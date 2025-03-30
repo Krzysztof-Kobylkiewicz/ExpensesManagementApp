@@ -1,0 +1,155 @@
+﻿@page "/import"
+@rendermode InteractiveAuto
+@using Models
+@using CsvHelper
+@using CsvHelper.Configuration
+@using System.Globalization
+@using System.Linq
+@using System.ComponentModel.DataAnnotations
+@inject ExpensesManagementApp.Client.Services.IFileService fileService
+@inject IDialogService dialogService
+
+<PageTitle>Import</PageTitle>
+
+<MudPaper Class="mt-5">
+    <MudGrid Class="mx-5">
+        <MudItem md="1" xs="12">
+            <MudSelect T="Models.File.BankTypeEnum?" Value="file.BankType" ValueChanged="(bt) => {file.BankType = bt;}" Label="@(DisplayHelper.DisplayName(() => file.BankType))">
+                @foreach (var bankType in Enum.GetValues(typeof(Models.File.BankTypeEnum)))
+                {
+                    var _bankType = (Models.File.BankTypeEnum)bankType;
+                    <MudSelectItem T="Models.File.BankTypeEnum?" Value="_bankType">@Models.File.File.BankTypeText(_bankType)</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        @if (isFileUploaded)
+        {
+             <MudItem Class="mt-5" md="12" xs="12">
+                 <MudChip T="string" OnClose="DeleteFile">
+                     <MudIcon Icon="@Icons.Custom.FileFormats.FileExcel"></MudIcon>
+                     @file.FileName
+                 </MudChip>
+             </MudItem>   
+        }
+        <MudItem md="12" xs="12">
+            <MudStack Row="true" Class="mt-3">
+                <MudButton Size="Size.Small" Color="Color.Dark" OnClick="OpenFilePickerAsync" Variant="Variant.Filled">Open file picker</MudButton>
+                <MudButton Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark" Disabled="!file.BankType.HasValue" OnClick="UploadFileAsync">Upload file</MudButton>
+            </MudStack>
+        </MudItem>
+        <MudItem md="6" xs="12">
+            <MudFileUpload T="IBrowserFile" @ref="fileUploadComponent" OnFilesChanged="OnFilesUploadedAsync" Accept=".csv, .txt"
+                           InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0" tabindex="-1"
+                           @ondrop="@ClearDragClass" @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+            </MudFileUpload>
+        </MudItem>
+    </MudGrid>
+    @if (file.Expenses.Count() > 0)
+    {
+        <MudTable Items="file?.Expenses.Take(numberOfExpensesToDisplay)" Hover=true Dense="true">
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">@($"Expenses {file?.Expenses.Take(numberOfExpensesToDisplay).Count()}/{numberOfExpensesToDisplay}")</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString" Placeholder="search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                @if (file != null)
+                {
+                    var expense = file.Expenses.First();
+                    <MudTh>@DisplayHelper.DisplayName(() => expense.AccountingDate)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => expense.OperationDate)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => expense.OperationTitle)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => expense.Amount)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => expense.Recipient)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => expense.SenderAccountNumber)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => expense.OperationNumber)</MudTh>
+                }
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="AccountingDate">@context.AccountingDate</MudTd>
+                <MudTd DataLabel="OperationDate">@context.OperationDate</MudTd>
+                <MudTd DataLabel="OperationTitle">@context.OperationTitle</MudTd>
+                <MudTd DataLabel="Amount">@context.Amount</MudTd>
+                <MudTd DataLabel="Recipient">@context.Recipient</MudTd>
+                <MudTd DataLabel="SenderAccountNumber">@context.SenderAccountNumber</MudTd>
+                <MudTd DataLabel="OperationNumber">@context.OperationNumber</MudTd>
+            </RowTemplate>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private Models.File.File file = new Models.File.File();
+
+    private int numberOfExpensesToDisplay = 100;
+    private bool isFileUploaded = false;
+
+    private MudFileUpload<IBrowserFile>? fileUploadComponent;
+    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
+    private string _dragClass = DefaultDragClass;
+    private string searchString = string.Empty;
+    private MudTheme Theme = new MudTheme();
+
+    private void SetDragClass() => _dragClass = $"{DefaultDragClass} mud-border-primary";
+    private void ClearDragClass() => _dragClass = DefaultDragClass;
+    private async Task OpenFilePickerAsync()
+    {
+        if (fileUploadComponent != null)
+            await fileUploadComponent.OpenFilePickerAsync();
+    }
+    private Task ClearAsync() => fileUploadComponent?.ClearAsync() ?? Task.CompletedTask;
+
+    private async Task OnFilesUploadedAsync(InputFileChangeEventArgs args)
+    {
+        var uploadedFile = args.File;
+        file.FileName = uploadedFile.Name;
+        file.FileSize = uploadedFile.Size;
+        file.Expenses = await OpenFileAndMapExpensesAsync(uploadedFile);
+        isFileUploaded = true;
+    }
+
+    private async Task<IEnumerable<Models.Expense.Expense>> OpenFileAndMapExpensesAsync(IBrowserFile uploadedFile)
+    {
+        using var stream = uploadedFile.OpenReadStream();
+
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+
+        memoryStream.Position = 0;
+
+        var config = new CsvConfiguration(CultureInfo.GetCultureInfo("pl-PL"))
+        {
+            Delimiter = ";",
+            HasHeaderRecord = false
+        };
+
+        using (var reader = new StreamReader(memoryStream, System.Text.Encoding.UTF8))
+        using (var csv = new CsvReader(reader, config))
+        {
+            List<Models.Expense.Expense> records = [];
+            csv.Context.RegisterClassMap<Models.Expense.ExpenseMap>();
+
+            return await csv.GetRecordsAsync<Models.Expense.Expense>().ToListAsync();
+        }
+    }
+
+    private async Task UploadFileAsync()
+    {
+        if (!file.IsUploadingAllowed() || !isFileUploaded)
+        {
+            await dialogService.ShowMessageBox("Warning", "File uploading is not possible.");
+            return;
+        } 
+
+        var response = await fileService.UploadFileAsync(file);
+
+    }
+
+    private void DeleteFile()
+    {
+        file.FileName = null;
+        file.FileSize = null;
+        file.Expenses = [];
+        isFileUploaded = false;
+    }
+}

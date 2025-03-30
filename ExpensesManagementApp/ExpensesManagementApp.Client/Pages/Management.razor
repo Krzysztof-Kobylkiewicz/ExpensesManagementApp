@@ -1,0 +1,37 @@
+﻿@page "/management"
+@page "/"
+@rendermode InteractiveAuto
+@using Models.Statistics
+@using Services;
+@inject IStatisticsService statisticsService
+
+<PageTitle>Management</PageTitle>
+
+<MudPaper Class="mt-5 pa-5">
+    <MudGrid>
+        <MudItem md="3" xs="12">
+            <MudTextField T="string">@DateTime.Now.Month.ToString()</MudTextField>
+        </MudItem>
+        <MudItem md="3" xs="12">
+            <MudTextField T="double?" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => Statistics.Sum)" Value="Statistics.Sum">@Statistics.Sum</MudTextField>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+
+    public Statistics Statistics { get; set; } = new Statistics(@default: true);
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var response = await statisticsService.InitializeAsync();
+
+        if (response == null)
+            return;
+
+        Statistics = response;
+        StateHasChanged();
+    }
+}
