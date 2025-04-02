@@ -2,7 +2,6 @@
 @rendermode InteractiveAuto
 @using ExpensesManagementApp.Models.HttpResult;
 @inject ExpensesManagementApp.Client.Services.FileService.IFileService fileService
-@inject IDialogService dialogService
 @inject NavigationManager navigationManager
 
 <PageTitle>Files</PageTitle>
@@ -28,7 +27,7 @@
                     <MudTd>@context.Expenses.Count()</MudTd>
                     <MudTd>
                         <MudStack Row="true">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Search" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}"))"></MudIconButton> @* async () => await ShowFileAsync(context) *@
+                            <MudIconButton Icon="@Icons.Material.Rounded.Search" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}"))"></MudIconButton>
                             <MudIconButton Icon="@Icons.Material.Rounded.Edit" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}?edit=1"))"></MudIconButton>
                         </MudStack>
                     </MudTd>
@@ -51,18 +50,5 @@
         await base.OnInitializedAsync();
 
         _httpResult = await fileService.GetAllFilesAsync();
-    }
-
-    private async Task ShowFileAsync(Models.File.File? file)
-    {
-        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth = MaxWidth.Medium};
-
-        var parameters = new DialogParameters <ExpensesManagementApp.Client.Components.FileDialog>
-        { 
-            { p => p.Edition, false },
-            { p => p.File, file}
-        };
-
-        var result = await dialogService.ShowAsync<Components.FileDialog>("File", parameters, options);
     }
 }

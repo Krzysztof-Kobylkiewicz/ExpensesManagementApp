@@ -1,0 +1,25 @@
+﻿<MudDialog>
+    <DialogContent>
+       <ExpensesManagementApp.Client.Pages.Details.FileDetails Edition="Edition" File="File"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    [Parameter]
+    public Models.File.File? File { get; set; }
+
+    private void Submit() => MudDialog?.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog?.Cancel();
+}

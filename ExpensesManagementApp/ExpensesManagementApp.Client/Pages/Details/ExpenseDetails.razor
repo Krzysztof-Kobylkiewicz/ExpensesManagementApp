@@ -1,0 +1,50 @@
+﻿@rendermode InteractiveAuto
+
+<PageTitle>Expense details</PageTitle>
+
+<MudPaper Class="mt-5 mb-5 pa-5">
+    @if (Expense != null)
+    {
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudTextField T="DateOnly" @bind-Value="Expense.OperationDate" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Expense.OperationDate)"></MudTextField>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField T="DateOnly" @bind-Value="Expense.AccountingDate" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Expense.AccountingDate)"></MudTextField>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField T="double" @bind-Value="Expense.Amount" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Expense.Amount)" AutoFocus="true"></MudTextField>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField T="string" @bind-Value="Expense.OperationTitle" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Expense.OperationTitle)"></MudTextField>
+            </MudItem>
+            @if (!string.IsNullOrEmpty(Expense.SenderAccountNumber))
+            {
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" @bind-Value="Expense.SenderAccountNumber" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Expense.SenderAccountNumber)"></MudTextField>
+                </MudItem>
+            }
+            @if (!string.IsNullOrEmpty(Expense.Recipient))
+            {
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" @bind-Value="Expense.Recipient" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Expense.Recipient)"></MudTextField>
+                </MudItem>
+            }
+            else if (!string.IsNullOrEmpty(Expense.Sender))
+            {
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" @bind-Value="Expense.Sender" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Expense.Sender)"></MudTextField>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public Models.Expense.Expense? Expense { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+}

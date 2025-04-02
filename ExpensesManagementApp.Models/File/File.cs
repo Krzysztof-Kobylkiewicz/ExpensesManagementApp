@@ -49,5 +49,21 @@ namespace ExpensesManagementApp.Models.File
                     throw new NotImplementedException();
             }
         }
+
+        public IEnumerable<Models.Expense.Expense> AssignSenderOrRecipent(IEnumerable<Models.Expense.Expense> expenses)
+        {
+            return expenses.Select(e => new Models.Expense.Expense
+            {
+                Id = e.Id,
+                AccountingDate = e.AccountingDate,
+                OperationDate = e.OperationDate,
+                Amount = e.Amount,
+                OperationTitle = e.OperationTitle,
+                SenderAccountNumber = e.SenderAccountNumber,
+                OperationNumber = e.OperationNumber,
+                Recipient = e.Amount > 0 ? string.Empty : e.Recipient,
+                Sender = e.Amount > 0 ? e.Recipient : string.Empty
+            });
+        }
     }
 }

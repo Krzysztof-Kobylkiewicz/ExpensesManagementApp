@@ -1,5 +1,6 @@
 ﻿@rendermode InteractiveAuto
 @using ExpensesManagementApp.Models.Expense
+@inject IDialogService dialogService
 
 @if (expenses?.Count() > 0)
 {
@@ -8,21 +9,19 @@
         <MudTable T="Models.Expense.Expense" Items="expenses" Hover=true Dense="true">
             <HeaderContent>
                 <MudTh>@DisplayHelper.DisplayName(() => expense.OperationDate)</MudTh>
-                <MudTh>@DisplayHelper.DisplayName(() => expense.AccountingDate)</MudTh>
                 <MudTh>@DisplayHelper.DisplayName(() => expense.Amount)</MudTh>
                 <MudTh>@DisplayHelper.DisplayName(() => expense.OperationTitle)</MudTh>
-                <MudTh>@DisplayHelper.DisplayName(() => expense.Recipient)</MudTh>
-                <MudTh>@DisplayHelper.DisplayName(() => expense.Sender)</MudTh>
-                <MudTh>@DisplayHelper.DisplayName(() => expense.SenderAccountNumber)</MudTh>
+                <MudTh>@($"{DisplayHelper.DisplayName(() => expense.Recipient)}/{DisplayHelper.DisplayName(() => expense.Sender)}")</MudTh>
+                <MudTh>Action</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.OperationDate</MudTd>
-                <MudTd>@context.AccountingDate</MudTd>
                 <MudTd>@context.Amount</MudTd>
                 <MudTd>@context.OperationTitle</MudTd>
-                <MudTd>@context.Recipient</MudTd>
-                <MudTd>@context.Sender</MudTd>
-                <MudTd>@context.SenderAccountNumber</MudTd>
+                <MudTd>@(string.IsNullOrEmpty(context.Recipient) ? context.Sender : context.Recipient)</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@(Edition ? Icons.Material.Rounded.Edit : Icons.Material.Rounded.Search)" Variant="Variant.Outlined" OnClick="async () => await ShowExpenseDialogAsync(context)"></MudIconButton>
+                </MudTd>
             </RowTemplate>
         </MudTable>
     </MudPaper>
@@ -32,5 +31,21 @@
 
     [Parameter]
     public IEnumerable<Expense>? expenses { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    private async Task ShowExpenseDialogAsync(Models.Expense.Expense? expense)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth = MaxWidth.Medium };
+
+        var parameters = new DialogParameters<ExpensesManagementApp.Client.Components.Dialogs.ExpenseDialog>
+        {
+            { p => p.Edition, Edition},
+            { p => p.Expense, expense}
+        };
+
+        var result = await dialogService.ShowAsync<Components.Dialogs.ExpenseDialog>("Expense", parameters, options);
+    }
 
 }

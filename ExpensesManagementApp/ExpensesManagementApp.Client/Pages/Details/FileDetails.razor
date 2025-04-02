@@ -14,12 +14,12 @@
                 <MudTextField T="string" @bind-Value="_file.FileName" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _file.FileName)" />
             </MudItem>
             <MudItem xs="12" md="4">
-                <MudTextField T="long?" @bind-Value="_file.FileSize" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _file.FileSize)" />
+                <MudTextField T="long?" @bind-Value="_file.FileSize" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _file.FileSize)" />
             </MudItem>
             @if (_file.BankType.HasValue)
             {
                 <MudItem xs="12" md="4">
-                    <MudTextField T="string" Value="Models.File.File.BankTypeText(_file.BankType.Value)" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _file.BankType)" />
+                    <MudTextField T="string" Value="Models.File.File.BankTypeText(_file.BankType.Value)" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _file.BankType)" />
                 </MudItem>
             }
             <MudItem xs="12" xl="12">
@@ -46,7 +46,7 @@
             </MudItem>
             <MudExpansionPanels Class="mb-5 pa-5">
                 <MudExpansionPanel Text="@(DisplayHelper.DisplayName(() => _file.Expenses))" Expanded="true">
-                    <ExpensesManagementApp.Client.Pages.Expenses expenses="_file.Expenses" />
+                    <ExpensesManagementApp.Client.Pages.Expenses expenses="_file.Expenses" Edition="Edition"/>
                 </MudExpansionPanel>
             </MudExpansionPanels>
         </MudGrid>

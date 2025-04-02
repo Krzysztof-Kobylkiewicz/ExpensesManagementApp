@@ -52,6 +52,8 @@ namespace ExpensesManagementApp.Services
         {
             try
             {
+                file.Expenses = file.AssignSenderOrRecipent(file.Expenses);
+
                 var _file = await _fileRepository.UploadFileAsync(file);
 
                 return new HttpResult<Models.File.File?>(_file);

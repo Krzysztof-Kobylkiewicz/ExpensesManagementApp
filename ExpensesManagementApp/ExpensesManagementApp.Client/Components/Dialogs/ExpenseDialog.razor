@@ -1,6 +1,6 @@
 ﻿<MudDialog>
     <DialogContent>
-       <ExpensesManagementApp.Client.Components.FileDetails Edition="Edition" File="File"/>
+        <ExpensesManagementApp.Client.Pages.Details.ExpenseDetails Edition="Edition" Expense="Expense" />
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">Cancel</MudButton>
@@ -17,7 +17,7 @@
     public bool Edition { get; set; }
 
     [Parameter]
-    public Models.File.File? File { get; set; }
+    public Models.Expense.Expense? Expense { get; set; }
 
     private void Submit() => MudDialog?.Close(DialogResult.Ok(true));
 
