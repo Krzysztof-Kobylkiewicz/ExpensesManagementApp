@@ -1,0 +1,68 @@
+﻿@page "/files"
+@rendermode InteractiveAuto
+@using ExpensesManagementApp.Models.HttpResult;
+@inject ExpensesManagementApp.Client.Services.FileService.IFileService fileService
+@inject IDialogService dialogService
+@inject NavigationManager navigationManager
+
+<PageTitle>Files</PageTitle>
+
+<MudPaper Class="mt-5">
+    @if (_httpResult?.Data != null)
+    {
+        var file = _httpResult.Data.FirstOrDefault();
+        @if (file != null)
+        {
+            <MudTable T="Models.File.File" Items="_httpResult?.Data" Hover=true Dense="true">
+                <HeaderContent>
+                    <MudTh>@DisplayHelper.DisplayName(() => file.FileName)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => file.BankType)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => file.FileSize)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => file.Expenses)</MudTh>
+                    <MudTh>Actions</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.FileName</MudTd>
+                    <MudTd>@(context.BankType.HasValue ? Models.File.File.BankTypeText(context.BankType.Value) : string.Empty)</MudTd>
+                    <MudTd>@context.FileSize</MudTd>
+                    <MudTd>@context.Expenses.Count()</MudTd>
+                    <MudTd>
+                        <MudStack Row="true">
+                            <MudIconButton Icon="@Icons.Material.Rounded.Search" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}"))"></MudIconButton> @* async () => await ShowFileAsync(context) *@
+                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}?edit=1"))"></MudIconButton>
+                        </MudStack>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    }
+    @if (_httpResult?.Data == null && !string.IsNullOrEmpty(_httpResult?.Message) && _httpResult.StatusCode != null)
+    {
+        <MudAlert>@_httpResult.HttpResultText()</MudAlert>
+    }
+</MudPaper>
+
+@code {
+
+    private HttpResult<IEnumerable<Models.File.File?>>? _httpResult;
+
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _httpResult = await fileService.GetAllFilesAsync();
+    }
+
+    private async Task ShowFileAsync(Models.File.File? file)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth = MaxWidth.Medium};
+
+        var parameters = new DialogParameters <ExpensesManagementApp.Client.Components.FileDialog>
+        { 
+            { p => p.Edition, false },
+            { p => p.File, file}
+        };
+
+        var result = await dialogService.ShowAsync<Components.FileDialog>("File", parameters, options);
+    }
+}

@@ -1,0 +1,36 @@
+﻿@rendermode InteractiveAuto
+@using ExpensesManagementApp.Models.Expense
+
+@if (expenses?.Count() > 0)
+{
+    var expense = expenses.First();
+    <MudPaper>
+        <MudTable T="Models.Expense.Expense" Items="expenses" Hover=true Dense="true">
+            <HeaderContent>
+                <MudTh>@DisplayHelper.DisplayName(() => expense.OperationDate)</MudTh>
+                <MudTh>@DisplayHelper.DisplayName(() => expense.AccountingDate)</MudTh>
+                <MudTh>@DisplayHelper.DisplayName(() => expense.Amount)</MudTh>
+                <MudTh>@DisplayHelper.DisplayName(() => expense.OperationTitle)</MudTh>
+                <MudTh>@DisplayHelper.DisplayName(() => expense.Recipient)</MudTh>
+                <MudTh>@DisplayHelper.DisplayName(() => expense.Sender)</MudTh>
+                <MudTh>@DisplayHelper.DisplayName(() => expense.SenderAccountNumber)</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.OperationDate</MudTd>
+                <MudTd>@context.AccountingDate</MudTd>
+                <MudTd>@context.Amount</MudTd>
+                <MudTd>@context.OperationTitle</MudTd>
+                <MudTd>@context.Recipient</MudTd>
+                <MudTd>@context.Sender</MudTd>
+                <MudTd>@context.SenderAccountNumber</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+
+@code {
+
+    [Parameter]
+    public IEnumerable<Expense>? expenses { get; set; }
+
+}

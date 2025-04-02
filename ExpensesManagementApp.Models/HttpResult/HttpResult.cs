@@ -11,7 +11,7 @@
         public HttpResult(T? data)
         {
             Data = data;
-            Message = "Success";
+            Message = "OK";
             StatusCode = 200;
         }
 
@@ -33,5 +33,10 @@
         public string? Message { get; set; }
 
         public int? StatusCode { get; set; }
+
+        public string HttpResultText()
+        {
+            return $"HTTP {StatusCode} - {Message}";
+        }
     }
 }

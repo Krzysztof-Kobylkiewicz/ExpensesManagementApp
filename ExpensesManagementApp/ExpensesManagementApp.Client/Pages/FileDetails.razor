@@ -1,0 +1,161 @@
+﻿@page "/file/{id:guid}"
+@rendermode InteractiveAuto
+@inject ExpensesManagementApp.Client.Services.FileService.IFileService fileService
+@inject NavigationManager navigationManager
+
+<PageTitle>File details</PageTitle>
+
+<MudPaper Class="mt-5 mb-5 pa-5">
+    <h3>File - @(Edition ? "edition" : "view")</h3>
+    @if (_file != null)
+    {
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudTextField T="string" @bind-Value="_file.FileName" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _file.FileName)" />
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField T="long?" @bind-Value="_file.FileSize" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _file.FileSize)" />
+            </MudItem>
+            @if (_file.BankType.HasValue)
+            {
+                <MudItem xs="12" md="4">
+                    <MudTextField T="string" Value="Models.File.File.BankTypeText(_file.BankType.Value)" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _file.BankType)" />
+                </MudItem>
+            }
+            <MudItem xs="12" xl="12">
+                <MudStack Row="true">
+                    @if (Edition)
+                    {
+                        <MudTooltip Text="Save changes">
+                            <MudIconButton Icon="@Icons.Material.Rounded.Save" OnClick="SaveChangesAndSwitchToViewModeAsync"></MudIconButton>
+                        </MudTooltip>
+                        <MudTooltip Text="Discard changes">
+                            <MudIconButton Icon="@Icons.Material.Rounded.Cancel" OnClick="DiscardChangesAndSwitchToViewMode"></MudIconButton>
+                        </MudTooltip>
+                        <MudTooltip Text="Delete file">
+                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFileAsync"></MudIconButton>
+                        </MudTooltip>
+                    }
+                    else
+                    {
+                        <MudTooltip Text="Edit">
+                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="SwitchToEditionMode"></MudIconButton>
+                        </MudTooltip>
+                    }
+                </MudStack>
+            </MudItem>
+            <MudExpansionPanels Class="mb-5 pa-5">
+                <MudExpansionPanel Text="@(DisplayHelper.DisplayName(() => _file.Expenses))" Expanded="true">
+                    <ExpensesManagementApp.Client.Pages.Expenses expenses="_file.Expenses" />
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+        </MudGrid>
+    }
+    else if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <MudAlert>@_errorMessage</MudAlert>
+    }
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    [Parameter]
+    public Guid? Id { get; set; }
+
+    private Models.File.File? _file { get; set; }
+
+    private string? _errorMessage { get; set; }
+
+    private string? _fileCopyJson { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (Id.HasValue)
+        {
+            var _httpResult = await fileService.GetFileAsync(Id.Value);
+
+            if (_httpResult.Data != null)
+            {
+                _file = _httpResult.Data;
+            }
+            else
+            {
+                _errorMessage = _httpResult.Message;
+            }
+        }
+
+        var uri = new Uri(navigationManager.Uri);
+        var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+        if (queryParams.TryGetValue("edit", out var edit))
+        {
+            Edition = !string.IsNullOrEmpty(edit);
+        }
+    }
+
+    private void SwitchToEditionMode()
+    {
+        _fileCopyJson = Newtonsoft.Json.JsonConvert.SerializeObject(_file);
+
+        Edition = true;
+    }
+
+    private async Task SaveChangesAndSwitchToViewModeAsync()
+    {
+        if (_file == null)
+            return;
+
+        var _httpResult = await fileService.UpdateFileAsync(_file);
+
+        if (_httpResult == null)
+            return;
+
+        if (_httpResult.Data != null)
+        {
+            _file = _httpResult.Data;
+        }
+        else
+        {
+            _errorMessage = _httpResult.Message;
+        }
+
+        _fileCopyJson = string.Empty;
+
+        Edition = false;
+    }
+
+    private void DiscardChangesAndSwitchToViewMode()
+    {
+        _file = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.File.File?>(_fileCopyJson ?? string.Empty);
+
+        _fileCopyJson = string.Empty;
+
+        Edition = false;
+    }
+
+    private async Task DeleteFileAsync()
+    {
+        if (_file == null)
+            return;
+
+        var _httpResult = await fileService.DeleteFileAsync(_file.FileId);
+
+        if (_httpResult == null)
+            return;
+
+        if (_httpResult.Data)
+        {
+            Edition = false;
+            navigationManager.NavigateTo("/files");
+        }
+        else
+        {
+            _errorMessage = _httpResult.Message;
+        }
+    }
+}

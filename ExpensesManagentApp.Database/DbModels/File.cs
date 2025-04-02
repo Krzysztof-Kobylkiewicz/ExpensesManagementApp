@@ -39,5 +39,11 @@ namespace ExpensesManagementApp.Database.DbModels
                 Expenses = file?.Expenses?.Select(e => Expense.ConvertToExpenseDTO(e)).ToList() ?? []
             };
         }
+
+        public void UpdateFile(Models.File.File file)
+        {
+            FileName = file.FileName;
+            Expenses = file.Expenses.Select(e => Expense.ConvertToDbExpense(e)).ToList() ?? [];
+        }
     }
 }

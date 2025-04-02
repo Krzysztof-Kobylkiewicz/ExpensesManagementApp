@@ -5,11 +5,19 @@ namespace ExpensesManagementApp.Models.File
     public class File
     {
         public File() { }
+
+        [Display(Name = "File ID")]
         public Guid FileId { get; set; }
+
+        [Display(Name = "File name")]
         public string? FileName { get; set; }
+
+        [Display(Name = "File size")]
         public long? FileSize { get; set; }
+
         [Display(Name = "Expenses")]
         public IEnumerable<Expense.Expense> Expenses { get; set; } = [];
+
         [Display(Name = "Bank type"), Required]
         public BankTypeEnum? BankType { get; set; }
 
