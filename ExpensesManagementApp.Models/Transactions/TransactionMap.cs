@@ -1,10 +1,10 @@
 ﻿using CsvHelper.Configuration;
 
-namespace ExpensesManagementApp.Models.Expense
+namespace ExpensesManagementApp.Models.Transaction
 {
-    public class ExpenseMap : ClassMap<Expense>
+    public class TransactionMap : ClassMap<Transaction>
     {
-        public ExpenseMap()
+        public TransactionMap()
         {
             Map(m => m.OperationDate).Index(1);
             Map(m => m.AccountingDate).Index(0);

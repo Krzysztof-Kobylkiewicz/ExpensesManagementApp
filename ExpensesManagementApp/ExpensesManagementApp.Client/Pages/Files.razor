@@ -17,14 +17,14 @@
                     <MudTh>@DisplayHelper.DisplayName(() => file.FileName)</MudTh>
                     <MudTh>@DisplayHelper.DisplayName(() => file.BankType)</MudTh>
                     <MudTh>@DisplayHelper.DisplayName(() => file.FileSize)</MudTh>
-                    <MudTh>@DisplayHelper.DisplayName(() => file.Expenses)</MudTh>
+                    <MudTh>@DisplayHelper.DisplayName(() => file.Transactions)</MudTh>
                     <MudTh>Actions</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.FileName</MudTd>
                     <MudTd>@(context.BankType.HasValue ? Models.File.File.BankTypeText(context.BankType.Value) : string.Empty)</MudTd>
                     <MudTd>@context.FileSize</MudTd>
-                    <MudTd>@context.Expenses.Count()</MudTd>
+                    <MudTd>@context.Transactions.Count()</MudTd>
                     <MudTd>
                         <MudStack Row="true">
                             <MudIconButton Icon="@Icons.Material.Rounded.Search" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}"))"></MudIconButton>
@@ -45,10 +45,14 @@
 
     private HttpResult<IEnumerable<Models.File.File?>>? _httpResult;
 
+    //private HttpResult<IEnumerable<Models.File.FilePackage?>>? _httpResult;
+
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
         _httpResult = await fileService.GetAllFilesAsync();
+
+        //_httpResult = await fileService.GetAllFilepackagesAsync();
     }
 }

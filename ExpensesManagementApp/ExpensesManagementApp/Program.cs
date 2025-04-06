@@ -1,16 +1,16 @@
-using ExpensesManagementApp.Client.Pages;
-using ExpensesManagementApp.Client.Services;
+using ExpensesManagementApp.Client.Services.TransactionService;
 using ExpensesManagementApp.Client.Services.FileService;
+using ExpensesManagementApp.Client.Services.StatisticsService;
 using ExpensesManagementApp.Components;
 using ExpensesManagementApp.Components.Account;
 using ExpensesManagementApp.Logic.Repositories;
 using ExpensesManagementApp.Logic.Repositories.FileRepository;
 using ExpensesManagementApp.MapGroup;
-using ExpensesManagementApp.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
+using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,10 +25,11 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
 builder.Services.AddScoped<IFileService, ExpensesManagementApp.Services.FileService>();
+builder.Services.AddScoped<ITransactionService, ExpensesManagementApp.Services.TransactionService>();
 builder.Services.AddScoped<IStatisticsService, ExpensesManagementApp.Services.StatisticsService>();
 
-builder.Services.AddScoped<FileRepository>();
-builder.Services.AddScoped<ExpenseRepository>();
+builder.Services.AddScoped<IFileRepository, FileRepository>();
+builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
 builder.Services.AddScoped<StatisticsRepository>();
 
 builder.Services.AddAuthentication(options =>
@@ -80,7 +81,8 @@ app.MapRazorComponents<App>()
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
-app.MapGroup("api/v1/files").MapFiles();
-app.MapGroup("api/v1/statistics").MapStatistics();
+app.MapGroup("").MapFiles();
+app.MapGroup("").MapExpenses();
+app.MapGroup("").MapStatistics();
 
 app.Run();

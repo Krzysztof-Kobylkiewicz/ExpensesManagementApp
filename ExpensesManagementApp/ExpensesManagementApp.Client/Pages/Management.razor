@@ -3,6 +3,7 @@
 @rendermode InteractiveAuto
 @using Models.Statistics
 @using Services;
+@using ExpensesManagementApp.Client.Services.StatisticsService;
 @inject IStatisticsService statisticsService
 
 <PageTitle>Management</PageTitle>
@@ -13,25 +14,22 @@
             <MudTextField T="string">@DateTime.Now.Month.ToString()</MudTextField>
         </MudItem>
         <MudItem md="3" xs="12">
-            <MudTextField T="double?" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => Statistics.Sum)" Value="Statistics.Sum">@Statistics.Sum</MudTextField>
+            <MudTextField T="double?" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _statistics.Sum)" Value="_statistics.Sum">@_statistics.Sum</MudTextField>
         </MudItem>
     </MudGrid>
 </MudPaper>
 
 @code {
 
-    public Statistics Statistics { get; set; } = new Statistics(@default: true);
+    private Statistics _statistics { get; set; } = new Statistics(@default: true);
 
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        var response = await statisticsService.InitializeAsync();
+        var response = await statisticsService.InitializeStatisticsAsync();
 
-        if (response == null)
-            return;
-
-        Statistics = response;
-        StateHasChanged();
+        if (response.Data != null)
+            _statistics = response.Data;
     }
 }

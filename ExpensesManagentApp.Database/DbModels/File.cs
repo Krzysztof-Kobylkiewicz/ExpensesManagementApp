@@ -11,7 +11,8 @@ namespace ExpensesManagementApp.Database.DbModels
         public long? FileSize { get; set; }
         public BankTypeEnum BankType { get; set; }
         public DateTime UpoloadDate { get; set; } = DateTime.Now;
-        public ICollection<Expense>? Expenses { get; set; }
+        public DateTime? UpdateDate { get; set; }
+        public ICollection<Transaction>? Transactions { get; set; }
 
         public static File ConvertToDbFile(Models.File.File file)
         {
@@ -24,7 +25,7 @@ namespace ExpensesManagementApp.Database.DbModels
                 FileName = file.FileName,
                 FileSize = file.FileSize,
                 BankType = file.BankType.Value,
-                Expenses = file.Expenses.Select(e => Expense.ConvertToDbExpense(e)).ToList()
+                Transactions = file.Transactions.Select(t => Transaction.ConvertToDbTransaction(t)).ToList()
             };
         }
 
@@ -36,14 +37,14 @@ namespace ExpensesManagementApp.Database.DbModels
                 FileName = file.FileName,
                 FileSize = file.FileSize,
                 BankType = file.BankType,
-                Expenses = file?.Expenses?.Select(e => Expense.ConvertToExpenseDTO(e)).ToList() ?? []
+                Transactions = file?.Transactions?.Select(t => Transaction.ConvertToTransactionDTO(t)).ToList() ?? []
             };
         }
 
         public void UpdateFile(Models.File.File file)
         {
             FileName = file.FileName;
-            Expenses = file.Expenses.Select(e => Expense.ConvertToDbExpense(e)).ToList() ?? [];
+            Transactions = file.Transactions.Select(t => Transaction.ConvertToDbTransaction(t)).ToList() ?? [];
         }
     }
 }

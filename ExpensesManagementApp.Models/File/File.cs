@@ -15,8 +15,8 @@ namespace ExpensesManagementApp.Models.File
         [Display(Name = "File size")]
         public long? FileSize { get; set; }
 
-        [Display(Name = "Expenses")]
-        public IEnumerable<Expense.Expense> Expenses { get; set; } = [];
+        [Display(Name = "Transactions")]
+        public IEnumerable<Transaction.Transaction> Transactions { get; set; } = [];
 
         [Display(Name = "Bank type"), Required]
         public BankTypeEnum? BankType { get; set; }
@@ -50,11 +50,11 @@ namespace ExpensesManagementApp.Models.File
             }
         }
 
-        public IEnumerable<Models.Expense.Expense> AssignSenderOrRecipent(IEnumerable<Models.Expense.Expense> expenses)
+        public static IEnumerable<Transaction.Transaction> AssignSenderOrRecipent(IEnumerable<Transaction.Transaction> expenses)
         {
-            return expenses.Select(e => new Models.Expense.Expense
+            return expenses.Select(e => new Transaction.Transaction
             {
-                Id = e.Id,
+                TransactionId = e.TransactionId,
                 AccountingDate = e.AccountingDate,
                 OperationDate = e.OperationDate,
                 Amount = e.Amount,

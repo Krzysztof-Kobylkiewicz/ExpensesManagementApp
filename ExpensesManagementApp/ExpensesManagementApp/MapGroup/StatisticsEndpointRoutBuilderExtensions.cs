@@ -1,4 +1,4 @@
-﻿using ExpensesManagementApp.Logic.Repositories;
+﻿using ExpensesManagementApp.Client.Services.StatisticsService;
 
 namespace ExpensesManagementApp.MapGroup
 {
@@ -6,12 +6,11 @@ namespace ExpensesManagementApp.MapGroup
     {
         internal static IEndpointConventionBuilder MapStatistics(this IEndpointRouteBuilder endpoints)
         {
-            var statisticsGroup = endpoints.MapGroup("");
-            statisticsGroup.RequireAuthorization();
+            var statisticsGroup = endpoints.MapGroup("api/v1/statistics");
 
             // endpoints
 
-            statisticsGroup.MapGet("/initialize", (StatisticsRepository statisticsRepository) => statisticsRepository.InitializeAsync());
+            statisticsGroup.MapGet("/initialize", (IStatisticsService statisticsService) => statisticsService.InitializeStatisticsAsync());
 
             return statisticsGroup;
         }

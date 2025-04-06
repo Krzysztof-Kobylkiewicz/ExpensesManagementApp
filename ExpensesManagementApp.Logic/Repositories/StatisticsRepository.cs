@@ -6,17 +6,23 @@ namespace ExpensesManagementApp.Logic.Repositories
 {
     public class StatisticsRepository(ApplicationDbContext database, ILogger<StatisticsRepository> logger)
     {
-        public async Task<Statistics?> InitializeAsync()
+        public async Task<Statistics?> InitializeStatisticsAsync()
         {
             try
             {
-                var latestExpenseDate = await database.Expenses.MaxAsync(e => e.OperationDate);
+                var latestExpenseDate = await database.Transactions.MaxAsync(e => e.OperationDate);
 
-                var sum = database.Expenses.Where(e => e.OperationDate.Month == latestExpenseDate.Month).Select(e => e.Amount).Sum();
+                var amount = await database.Transactions.Where(e => e.OperationDate.Month == latestExpenseDate.Month).Select(e => e.Amount).ToArrayAsync();
+
+                var sum = amount.Sum();
+                var avg = sum / 30;
+                var median = amount.OrderByDescending(a => a).ToArray()[amount.Length / 2];
 
                 return new Statistics
                 {
-                    Sum = Math.Round(sum, 2)
+                    Sum = Math.Round(sum, 2),
+                    Average = Math.Round(avg, 2),
+                    Median = Math.Round(median, 2)
                 };
             }
             catch (InvalidOperationException ioe)

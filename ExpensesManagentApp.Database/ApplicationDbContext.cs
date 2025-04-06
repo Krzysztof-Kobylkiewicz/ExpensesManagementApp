@@ -6,7 +6,8 @@ namespace ExpensesManagementApp.Database
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : IdentityDbContext<ApplicationUser>(options)
     {
-        public DbSet<Expense> Expenses { get; set; }
-        public DbSet<ExpensesManagementApp.Database.DbModels.File> Files { get; set; }
+        public DbSet<DbModels.File> Files { get; set; }
+        public DbSet<TransactionGroup> TransactionGroups { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
     }
 }

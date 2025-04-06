@@ -1,21 +1,30 @@
-﻿using ExpensesManagementApp.Client.Services;
+﻿using ExpensesManagementApp.Client.Services.StatisticsService;
 using ExpensesManagementApp.Logic.Repositories;
+using ExpensesManagementApp.Models.CustomExceptions;
+using ExpensesManagementApp.Models.HttpResult;
 using ExpensesManagementApp.Models.Statistics;
 
 namespace ExpensesManagementApp.Services
 {
-    public class StatisticsService(StatisticsRepository statisticsRepository, ILogger<StatisticsService> logger) : IStatisticsService
+    public class StatisticsService(StatisticsRepository _statisticsRepository, ILogger<StatisticsService> _logger) : IStatisticsService
     {
-        public async Task<Statistics?> InitializeAsync()
+        public async Task<HttpResult<Statistics?>> InitializeStatisticsAsync()
         {
             try
             {
-                return await statisticsRepository.InitializeAsync();
+                var statistics = await _statisticsRepository.InitializeStatisticsAsync();
+
+                return new HttpResult<Statistics?>(statistics);
+            }
+            catch (ExpensesManagementAppDbException ex)
+            {
+                _logger.LogError(ex, "[{0D}] StatisticsService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<Statistics?>(ex.Message, ex.StatusCode);
             }
             catch (Exception ex)
             {
-                logger.LogError("[{0D}] Error while accessing statistics repository: {1M}", DateTime.Now, ex.Message);
-                throw;
+                _logger.LogError("[{0D}] Error while attempt to initialize statistics: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<Statistics?>();
             }
         }
     }

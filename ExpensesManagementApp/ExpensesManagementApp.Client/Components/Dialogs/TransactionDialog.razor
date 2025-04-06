@@ -1,0 +1,39 @@
+﻿@inject NavigationManager navigationManager
+
+<MudDialog>
+    <DialogContent>
+        <ExpensesManagementApp.Client.Pages.Details.TransactionDetails Edition="Edition" Transaction="Transaction" TransactionDialogCallback="TransactionDialogCallback" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    [Parameter]
+    public Models.Transaction.Transaction? Transaction { get; set; }
+
+    [Parameter]
+    public Guid FileId { get; set; }
+
+    private void Submit() => MudDialog?.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog?.Cancel();
+
+    private void TransactionDialogCallback(bool isTransactionDeleted)
+    {
+        if (isTransactionDeleted)
+        {
+            Submit();
+            navigationManager.NavigateTo($"/file/{FileId}", true);
+        }
+    }
+}

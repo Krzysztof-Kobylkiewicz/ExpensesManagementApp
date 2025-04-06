@@ -1,6 +1,7 @@
 using ExpensesManagementApp.Client;
-using ExpensesManagementApp.Client.Services;
+using ExpensesManagementApp.Client.Services.TransactionService;
 using ExpensesManagementApp.Client.Services.FileService;
+using ExpensesManagementApp.Client.Services.StatisticsService;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -12,6 +13,7 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddSingleton<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();
 
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 builder.Services.AddMudServices();

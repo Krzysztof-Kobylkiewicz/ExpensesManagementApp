@@ -6,10 +6,12 @@ namespace ExpensesManagementApp.MapGroup
     {
         internal static IEndpointConventionBuilder MapFiles(this IEndpointRouteBuilder endpoints)
         {
-            var fileGroup = endpoints.MapGroup("");
+            var fileGroup = endpoints.MapGroup("api/v1/files");
 
             fileGroup.MapGet("/file/{id:guid}", (IFileService fileService, Guid id) => fileService.GetFileAsync(id));
             fileGroup.MapGet("/all", (IFileService fileService) => fileService.GetAllFilesAsync());
+            fileGroup.MapGet("/filePackage/{id:guid}", (IFileService fileService, Guid id) => fileService.GetFilePackageAsync(id));
+            fileGroup.MapGet("/packages/all", (IFileService fileService) => fileService.GetAllFilepackagesAsync());
 
             fileGroup.MapPost("/upload", (Models.File.File file, IFileService fileService) => fileService.UploadFileAsync(file));
 

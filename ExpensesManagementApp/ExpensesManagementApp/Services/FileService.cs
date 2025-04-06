@@ -5,7 +5,7 @@ using ExpensesManagementApp.Models.HttpResult;
 
 namespace ExpensesManagementApp.Services
 {
-    public class FileService(FileRepository _fileRepository, ILogger<FileService> _logger) : IFileService
+    public class FileService(IFileRepository _fileRepository, ILogger<FileService> _logger) : IFileService
     {
 
         public async Task<HttpResult<Models.File.File?>> GetFileAsync(Guid id)
@@ -48,11 +48,51 @@ namespace ExpensesManagementApp.Services
             }
         }
 
+        public async Task<HttpResult<Models.File.FilePackage?>> GetFilePackageAsync(Guid id)
+        {
+            try
+            {
+                var file = await _fileRepository.GetFilePackageAsync(id);
+
+                return new HttpResult<Models.File.FilePackage?>(file);
+            }
+            catch (ExpensesManagementAppDbException ex)
+            {
+                _logger.LogError(ex, "[{0D}] FileService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<Models.File.FilePackage?>(ex.Message, ex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[{0D}] FileService threw an Exception: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<Models.File.FilePackage?>();
+            }
+        }
+
+        public async Task<HttpResult<IEnumerable<Models.File.FilePackage?>>> GetAllFilepackagesAsync()
+        {
+            try
+            {
+                var filePackages = await _fileRepository.GetAllFilePackagesAsync();
+
+                return new HttpResult<IEnumerable<Models.File.FilePackage?>>(filePackages);
+            }
+            catch (ExpensesManagementAppDbException ex)
+            {
+                _logger.LogError(ex, "[{0D}] FileService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<IEnumerable<Models.File.FilePackage?>>(ex.Message, ex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[{0D}] FileService threw an Exception: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<IEnumerable<Models.File.FilePackage?>>();
+            }
+        }
+
         public async Task<HttpResult<Models.File.File?>> UploadFileAsync(Models.File.File file)
         {
             try
             {
-                file.Expenses = file.AssignSenderOrRecipent(file.Expenses);
+                file.Transactions = Models.File.File.AssignSenderOrRecipent(file.Transactions);
 
                 var _file = await _fileRepository.UploadFileAsync(file);
 

@@ -7,19 +7,19 @@
 
 <MudPaper Class="mt-5 mb-5 pa-5">
     <h3>File - @(Edition ? "edition" : "view")</h3>
-    @if (_file != null)
+    @if (_filePackage is not null && _filePackage.File is not null)
     {
         <MudGrid>
             <MudItem xs="12" md="4">
-                <MudTextField T="string" @bind-Value="_file.FileName" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _file.FileName)" />
+                <MudTextField T="string" @bind-Value="_filePackage.File.FileName" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => _filePackage.File.FileName)" />
             </MudItem>
             <MudItem xs="12" md="4">
-                <MudTextField T="long?" @bind-Value="_file.FileSize" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _file.FileSize)" />
+                <MudTextField T="long?" @bind-Value="_filePackage.File.FileSize" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _filePackage.File.FileSize)" />
             </MudItem>
-            @if (_file.BankType.HasValue)
+            @if (_filePackage.File.BankType.HasValue)
             {
                 <MudItem xs="12" md="4">
-                    <MudTextField T="string" Value="Models.File.File.BankTypeText(_file.BankType.Value)" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _file.BankType)" />
+                    <MudTextField T="string" Value="Models.File.File.BankTypeText(_filePackage.File.BankType.Value)" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _filePackage.File.BankType)" />
                 </MudItem>
             }
             <MudItem xs="12" xl="12">
@@ -27,26 +27,29 @@
                     @if (Edition)
                     {
                         <MudTooltip Text="Save changes">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Save" OnClick="SaveChangesAndSwitchToViewModeAsync"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.Rounded.Save" OnClick="SaveChangesAndSwitchToViewModeAsync"/>
                         </MudTooltip>
                         <MudTooltip Text="Discard changes">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Cancel" OnClick="DiscardChangesAndSwitchToViewMode"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.Rounded.Cancel" OnClick="DiscardChangesAndSwitchToViewMode"/>
                         </MudTooltip>
                         <MudTooltip Text="Delete file">
-                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFileAsync"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFileAsync"/>
                         </MudTooltip>
                     }
                     else
                     {
                         <MudTooltip Text="Edit">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="SwitchToEditionMode"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="SwitchToEditionMode" Disabled="_assigningToGroupActive"/>
                         </MudTooltip>
                     }
+                    <MudTooltip Text="Assign transactions to group">
+                        <MudIconButton Icon="@Icons.Material.Rounded.GroupAdd" OnClick="() => _assigningToGroupActive = true" Disabled="Edition" />
+                    </MudTooltip>
                 </MudStack>
             </MudItem>
             <MudExpansionPanels Class="mb-5 pa-5">
-                <MudExpansionPanel Text="@(DisplayHelper.DisplayName(() => _file.Expenses))" Expanded="true">
-                    <ExpensesManagementApp.Client.Pages.Expenses expenses="_file.Expenses" Edition="Edition"/>
+                <MudExpansionPanel Text="@(DisplayHelper.DisplayName(() => _filePackage.File.Transactions))" Expanded="true">
+                    <ExpensesManagementApp.Client.Pages.Transactions FilePackage="_filePackage" Edition="Edition" AssigningToGroupActive="_assigningToGroupActive"/>
                 </MudExpansionPanel>
             </MudExpansionPanels>
         </MudGrid>
@@ -65,11 +68,15 @@
     [Parameter]
     public Guid? Id { get; set; }
 
-    private Models.File.File? _file { get; set; }
+    private Models.File.FilePackage? _filePackage { get; set; }
 
     private string? _errorMessage { get; set; }
 
     private string? _fileCopyJson { get; set; }
+
+    private bool _assigningToGroupActive { get; set; } = false;
+
+    private Models.Transaction.TransactionGroup _transactionGroup { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -77,11 +84,11 @@
 
         if (Id.HasValue)
         {
-            var _httpResult = await fileService.GetFileAsync(Id.Value);
+            var _httpResult = await fileService.GetFilePackageAsync(Id.Value);
 
             if (_httpResult.Data != null)
             {
-                _file = _httpResult.Data;
+                _filePackage = _httpResult.Data;
             }
             else
             {
@@ -100,24 +107,24 @@
 
     private void SwitchToEditionMode()
     {
-        _fileCopyJson = Newtonsoft.Json.JsonConvert.SerializeObject(_file);
+        _fileCopyJson = Newtonsoft.Json.JsonConvert.SerializeObject(_filePackage);
 
         Edition = true;
     }
 
     private async Task SaveChangesAndSwitchToViewModeAsync()
     {
-        if (_file == null)
+        if (_filePackage is null || _filePackage.File is null)
             return;
 
-        var _httpResult = await fileService.UpdateFileAsync(_file);
+        var _httpResult = await fileService.UpdateFileAsync(_filePackage.File);
 
         if (_httpResult == null)
             return;
 
         if (_httpResult.Data != null)
         {
-            _file = _httpResult.Data;
+            _filePackage.File = _httpResult.Data;
         }
         else
         {
@@ -131,7 +138,10 @@
 
     private void DiscardChangesAndSwitchToViewMode()
     {
-        _file = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.File.File?>(_fileCopyJson ?? string.Empty);
+        if (_filePackage is null)
+            return;
+
+        _filePackage.File = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.File.File?>(_fileCopyJson ?? string.Empty);
 
         _fileCopyJson = string.Empty;
 
@@ -140,10 +150,10 @@
 
     private async Task DeleteFileAsync()
     {
-        if (_file == null)
+        if (_filePackage is null || _filePackage.File is null)
             return;
 
-        var _httpResult = await fileService.DeleteFileAsync(_file.FileId);
+        var _httpResult = await fileService.DeleteFileAsync(_filePackage.File.FileId);
 
         if (_httpResult == null)
             return;

@@ -1,0 +1,75 @@
+﻿@rendermode InteractiveAuto
+@inject ExpensesManagementApp.Client.Services.TransactionService.ITransactionService expenseService
+
+<PageTitle>Expense details</PageTitle>
+
+<MudPaper Class="mt-5 mb-5 pa-5">
+    @if (Transaction != null)
+    {
+        <MudGrid>
+            <MudItem xs="12" md="4">
+                <MudTextField T="DateOnly" @bind-Value="Transaction.OperationDate" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.OperationDate)"></MudTextField>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField T="DateOnly" @bind-Value="Transaction.AccountingDate" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.AccountingDate)"></MudTextField>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudTextField T="double" @bind-Value="Transaction.Amount" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.Amount)" AutoFocus="true"></MudTextField>
+            </MudItem>
+            <MudItem xs="12" md="12">
+                <MudTextField T="string" @bind-Value="Transaction.OperationTitle" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.OperationTitle)"></MudTextField>
+            </MudItem>
+            @if (!string.IsNullOrEmpty(Transaction.SenderAccountNumber))
+            {
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" @bind-Value="Transaction.SenderAccountNumber" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.SenderAccountNumber)"></MudTextField>
+                </MudItem>
+            }
+            @if (!string.IsNullOrEmpty(Transaction.Recipient))
+            {
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" @bind-Value="Transaction.Recipient" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.Recipient)"></MudTextField>
+                </MudItem>
+            }
+            else if (!string.IsNullOrEmpty(Transaction.Sender))
+            {
+                <MudItem xs="12" md="12">
+                    <MudTextField T="string" @bind-Value="Transaction.Sender" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.Sender)"></MudTextField>
+                </MudItem>
+            }
+            @if (Edition)
+            {
+                 <MudItem xs="12" xl="12">
+                    <MudStack Row="true">
+                        <MudTooltip Text="Remove expense">
+                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFileAsync"></MudIconButton>
+                        </MudTooltip>
+                    </MudStack>
+                </MudItem>   
+            }
+        </MudGrid>
+    }
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public Models.Transaction.Transaction? Transaction { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> TransactionDialogCallback { get; set; }
+
+    private async Task DeleteFileAsync()
+    {
+        if (Transaction is null)
+            return;
+
+        var _httpResult = await expenseService.DeleteTransactionAsync(Transaction.TransactionId);
+
+        if (TransactionDialogCallback.HasDelegate && _httpResult is not null)
+            await TransactionDialogCallback.InvokeAsync(_httpResult.Data);
+    }
+}
