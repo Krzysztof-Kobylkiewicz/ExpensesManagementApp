@@ -24,7 +24,7 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 
-builder.Services.AddScoped<IFileService, ExpensesManagementApp.Services.FileService>();
+builder.Services.AddScoped<IFileService, ExpensesManagementApp.Services.FileService.FileService>();
 builder.Services.AddScoped<ITransactionService, ExpensesManagementApp.Services.TransactionService>();
 builder.Services.AddScoped<IStatisticsService, ExpensesManagementApp.Services.StatisticsService>();
 

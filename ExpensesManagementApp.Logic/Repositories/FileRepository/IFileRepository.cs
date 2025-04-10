@@ -9,5 +9,6 @@
         Task<Models.File.File?> UploadFileAsync(Models.File.File file);
         Task<Models.File.File?> UpdateFileAsync(Models.File.File file);
         Task<bool> DeleteFileAsync(Guid id);
+        Task<bool> DeleteFilePackageAsync(Guid id);
     }
 }

@@ -1,0 +1,33 @@
+﻿<PageTitle>Transaction group details</PageTitle>
+
+<MudPaper Class="mt-5 mb-5 pa-5">
+    @if (TransactionGroup is not null)
+    {
+        <MudGrid>
+            <MudItem xs="12" md="3">
+                <MudTextField T="string" @bind-Value="TransactionGroup.TransactionGroupName" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => TransactionGroup.TransactionGroupName)" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudTextField T="double" @bind-Value="TransactionGroup.TransactionGroupSum" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => TransactionGroup.TransactionGroupSum)" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudTextField T="double?" @bind-Value="TransactionGroup.TransactionGroupExpensesSum" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => TransactionGroup.TransactionGroupExpensesSum)" />
+            </MudItem>
+            <MudItem xs="12" md="3">
+                <MudTextField T="double?" @bind-Value="TransactionGroup.TransactionGroupIncomeSum" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => TransactionGroup.TransactionGroupIncomeSum)" />
+            </MudItem>
+        </MudGrid>
+    }
+</MudPaper>
+
+@code {
+
+    [Parameter]
+    public Models.Transaction.TransactionGroup? TransactionGroup { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> TransactionDialogCallback { get; set; }
+}

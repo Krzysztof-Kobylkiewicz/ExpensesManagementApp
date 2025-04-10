@@ -94,6 +94,22 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
                 transactionGroup.TransactionGroupSum = Math.Round(transactionGroup.Transactions.Select(t => t.Amount).Sum(), 2);
                 transactionGroup.TransactionGroupExpensesSum = Math.Round(transactionGroup.Transactions.Where(t => t.Amount < 0).Select(t => t.Amount).Sum(), 2);
                 transactionGroup.TransactionGroupIncomeSum = Math.Round(transactionGroup.Transactions.Where(t => t.Amount > 0).Select(t => t.Amount).Sum(), 2);
+                transactionGroup.NumberOfTransactionsInGroup = transactionGroup.Transactions.Count();
+
+                var latestTransactionInGroup = transactionGroup.Transactions.MaxBy(t => t.OperationDate);
+
+
+                transactionGroup.Representant = new Models.Transaction.TransactionRepresentant
+                {
+                    TransactionId = Guid.NewGuid(),
+                    AccountingDate = latestTransactionInGroup?.AccountingDate ??
+                        throw new ArgumentNullException(nameof(transactionGroup), "AccountingDate cannot be null."),
+                    OperationDate = latestTransactionInGroup?.OperationDate ?? 
+                        throw new ArgumentNullException(nameof(transactionGroup), "OperationDate cannot be null."),
+                    Amount = transactionGroup.TransactionGroupSum,
+                    OperationTitle = transactionGroup.TransactionGroupName,
+                    TransactionGroupId = transactionGroup.TransactionGroupId,
+                };
 
                 var dbTransactionGroup = TransactionGroup.ConvertToDbTransactionGroup(transactionGroup);
 

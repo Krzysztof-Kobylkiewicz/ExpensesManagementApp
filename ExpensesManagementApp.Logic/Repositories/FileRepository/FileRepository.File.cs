@@ -3,10 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ExpensesManagementApp.Models.CustomExceptions;
 using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
+using ExpensesManagementApp.Models.File;
 
 namespace ExpensesManagementApp.Logic.Repositories.FileRepository
 {
-    public class FileRepository(ApplicationDbContext database, ILogger<FileRepository> logger, ITransactionsRepository transactionsRepository) : IFileRepository
+    public partial class FileRepository(ApplicationDbContext database, ILogger<FileRepository> logger, ITransactionsRepository transactionsRepository) : IFileRepository
     {
         public async Task<Models.File.File?> GetFileAsync(Guid id)
         {
@@ -22,57 +23,16 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             return dbFiles.Select(f => Database.DbModels.File.ConvertToFileDTO(f));
         }
 
-        public async Task<Models.File.FilePackage> GetFilePackageAsync(Guid id)
+        private async Task<FilePackage> GetTransactionGroupsAssociatedWithFile(Models.File.File? file)
         {
-            using var transaction = database.Database.BeginTransaction();
-            try
+            var transactionGroups = await transactionsRepository.GetTransactionGroupsAsync(file?.Transactions.Where(t => t.TransactionGroupId.HasValue).Select(t => t.TransactionGroupId) ?? []);
+
+            return new Models.File.FilePackage
             {
-                var file = await GetFileAsync(id);
-
-                var transactionGroups = await transactionsRepository.GetTransactionGroupsAsync(file?.Transactions.Where(t => t.TransactionGroupId.HasValue).Select(t => t.TransactionGroupId) ?? [], transaction);
-
-                return new Models.File.FilePackage
-                {
-                    File = file,
-                    TransactionGroups = transactionGroups
-                };
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("[{0D}] Error while attempt to get file package: {1M}", DateTime.Now, ex.Message);
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task<IEnumerable<Models.File.FilePackage?>> GetAllFilePackagesAsync()
-        {
-            using var transaction = database.Database.BeginTransaction();
-            try
-            {
-                IList<Models.File.FilePackage?> filePackages = [];
-
-                var files = await GetAllFilesAsync();
-
-                foreach (var file in files)
-                {
-                    var transactionGroups = await transactionsRepository.GetTransactionGroupsAsync(file?.Transactions.Where(t => t.TransactionGroupId.HasValue).Select(t => t.TransactionGroupId) ?? [], transaction);
-
-                    filePackages.Add(new Models.File.FilePackage
-                    {
-                        File = file,
-                        TransactionGroups = transactionGroups
-                    });
-                }
-
-                return filePackages;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError("[{0D}] Error while attempt to get all file packages: {1M}", DateTime.Now, ex.Message);
-                await transaction.RollbackAsync();
-                throw;
-            }
+                File = file,
+                TransactionGroups = transactionGroups
+                //GroupedTransactions = transactionGroups?.Select(tg => tg?.Representant).Concat(file?.Transactions.Where(t => !t.TransactionGroupId.HasValue) ?? [])
+            };
         }
 
         public async Task<Models.File.File?> UploadFileAsync(Models.File.File file)
@@ -137,12 +97,9 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
                 database.Files.Remove(fileToDelete);
                 int n = await database.SaveChangesAsync();
 
-                if (n > 1)
-                    throw new Exception("An attempt to delete more than one file by id was registered.");
-
                 await transaction.CommitAsync();
 
-                return n == 1;
+                return true;
             }
             catch (Exception ex)
             {

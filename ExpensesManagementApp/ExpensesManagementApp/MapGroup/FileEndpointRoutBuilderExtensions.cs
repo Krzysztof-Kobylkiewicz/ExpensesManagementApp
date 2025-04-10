@@ -18,6 +18,7 @@ namespace ExpensesManagementApp.MapGroup
             fileGroup.MapPut("/update/{id:guid}", (Models.File.File file, IFileService fileService) => fileService.UpdateFileAsync(file));
 
             fileGroup.MapDelete("/delete/{id:guid}", (Guid id, IFileService fileService) => fileService.DeleteFileAsync(id));
+            fileGroup.MapDelete("/filePackage/delete/{id:guid}", (Guid id, IFileService fileService) => fileService.DeleteFilePackageAsync(id));
 
             return fileGroup;
         }

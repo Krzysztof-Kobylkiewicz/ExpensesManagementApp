@@ -1,0 +1,38 @@
+﻿<MudDialog>
+    <DialogContent>
+        <ExpensesManagementApp.Client.Pages.Details.TransactionGroupDetails TransactionGroup="TransactionGroup" Edition="Edition" TransactionDialogCallback="TransactionDialogCallback"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter]
+    private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    [Parameter]
+    public Models.Transaction.TransactionGroup? TransactionGroup { get; set; }
+
+    [Parameter]
+    public Guid FileId { get; set; }
+
+    private void Submit() => MudDialog?.Close(DialogResult.Ok(true));
+
+    private void Cancel() => MudDialog?.Cancel();
+
+    private void TransactionDialogCallback(bool isTransactionDeleted)
+    {
+        throw new NotImplementedException();
+        // if (isTransactionDeleted)
+        // {
+        //     Submit();
+        //     navigationManager.NavigateTo($"/file/{FileId}", true);
+        // }
+    }
+}

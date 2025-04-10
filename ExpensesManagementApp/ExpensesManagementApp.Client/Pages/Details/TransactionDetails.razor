@@ -42,7 +42,7 @@
                  <MudItem xs="12" xl="12">
                     <MudStack Row="true">
                         <MudTooltip Text="Remove expense">
-                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFileAsync"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteTransactionGroupAsync"></MudIconButton>
                         </MudTooltip>
                     </MudStack>
                 </MudItem>   
@@ -62,14 +62,15 @@
     [Parameter]
     public EventCallback<bool> TransactionDialogCallback { get; set; }
 
-    private async Task DeleteFileAsync()
+    private async Task DeleteTransactionGroupAsync()
     {
-        if (Transaction is null)
-            return;
+        throw new NotImplementedException();
+        // if (Transaction is null)
+        //     return;
 
-        var _httpResult = await expenseService.DeleteTransactionAsync(Transaction.TransactionId);
+        // var _httpResult = await expenseService.DeleteTransactionAsync(Transaction.TransactionId);
 
-        if (TransactionDialogCallback.HasDelegate && _httpResult is not null)
-            await TransactionDialogCallback.InvokeAsync(_httpResult.Data);
+        // if (TransactionDialogCallback.HasDelegate && _httpResult is not null)
+        //     await TransactionDialogCallback.InvokeAsync(_httpResult.Data);
     }
 }

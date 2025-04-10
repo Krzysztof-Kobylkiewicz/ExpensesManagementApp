@@ -11,5 +11,6 @@ namespace ExpensesManagementApp.Client.Services.FileService
         Task<HttpResult<Models.File.File?>> UploadFileAsync(Models.File.File file);
         Task<HttpResult<Models.File.File?>> UpdateFileAsync(Models.File.File file);
         Task<HttpResult<bool>> DeleteFileAsync(Guid id);
+        Task<HttpResult<bool>> DeleteFilePackageAsync(Guid id);
     }
 }

@@ -33,17 +33,17 @@
                             <MudIconButton Icon="@Icons.Material.Rounded.Cancel" OnClick="DiscardChangesAndSwitchToViewMode"/>
                         </MudTooltip>
                         <MudTooltip Text="Delete file">
-                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFileAsync"/>
+                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFilePackageAsync"/>
                         </MudTooltip>
                     }
                     else
                     {
                         <MudTooltip Text="Edit">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="SwitchToEditionMode" Disabled="_assigningToGroupActive"/>
+                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="SwitchToEditionMode" Disabled="_assigningToGroupActive" />
                         </MudTooltip>
                     }
-                    <MudTooltip Text="Assign transactions to group">
-                        <MudIconButton Icon="@Icons.Material.Rounded.GroupAdd" OnClick="() => _assigningToGroupActive = true" Disabled="Edition" />
+                    <MudTooltip Text="@(_assigningToGroupActive ? "Discard changes" : "Assign transactions to group")">
+                        <MudIconButton Icon="@(_assigningToGroupActive ? @Icons.Material.Rounded.Cancel : Icons.Material.Rounded.GroupAdd)" OnClick="() => _assigningToGroupActive = !_assigningToGroupActive" Disabled="Edition" />
                     </MudTooltip>
                 </MudStack>
             </MudItem>
@@ -148,12 +148,12 @@
         Edition = false;
     }
 
-    private async Task DeleteFileAsync()
+    private async Task DeleteFilePackageAsync()
     {
         if (_filePackage is null || _filePackage.File is null)
             return;
 
-        var _httpResult = await fileService.DeleteFileAsync(_filePackage.File.FileId);
+        var _httpResult = await fileService.DeleteFilePackageAsync(_filePackage.File.FileId);
 
         if (_httpResult == null)
             return;

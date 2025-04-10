@@ -1,6 +1,7 @@
 ﻿@rendermode InteractiveAuto
 @using ExpensesManagementApp.Models.Transaction
 @inject IDialogService dialogService
+@inject NavigationManager navigationManager
 @inject ExpensesManagementApp.Client.Services.TransactionService.ITransactionService transactionService
 
 @if (FilePackage?.File?.Transactions?.Count() > 0)
@@ -20,8 +21,8 @@
     </MudItem>
 
     var transaction = FilePackage?.File?.Transactions.First();
-    <MudPaper>
-        <MudTable T="Models.Transaction.Transaction" Items="FilePackage?.File?.Transactions" Hover=true Dense="true">
+    <MudPaper Class="mt-10 mb-5">
+        <MudTable T="Models.Transaction.ITransaction" Items="tableGroupedTransactions" Hover=true Dense="true">
             <HeaderContent>
                 @if (transaction is not null)
                 {
@@ -33,19 +34,30 @@
                 }
             </HeaderContent>
             <RowTemplate>
-                <MudTd>@(context.TransactionGroupId.HasValue ? @* FilePackage?.TransactionGroups?.Where(tg => tg?.TransactionGroupId == context.TransactionGroupId).FirstOrDefault()  *@ "Placeholder" : context.OperationDate)</MudTd>
-                <MudTd>@(context.TransactionGroupId.HasValue ? FilePackage?.TransactionGroups?.Where(tg => tg?.TransactionGroupId == context.TransactionGroupId).FirstOrDefault()?.TransactionGroupSum : context.Amount)</MudTd>
-                <MudTd>@(context.TransactionGroupId.HasValue ? FilePackage?.TransactionGroups?.Where(tg => tg?.TransactionGroupId == context.TransactionGroupId).FirstOrDefault()?.TransactionGroupName : context.OperationTitle)</MudTd>
-                <MudTd>@(context.TransactionGroupId.HasValue ? "Placeholder" : (string.IsNullOrEmpty(context.Recipient) ? context.Sender : context.Recipient))</MudTd>
-                <MudTd>
-                    <MudStack Row="true">
-                        <MudIconButton Icon="@(Edition ? Icons.Material.Rounded.Edit : Icons.Material.Rounded.Search)" Variant="Variant.Outlined" OnClick="async () => await ShowTransactionDialogAsync(context)" />
-                        @if (AssigningToGroupActive)
-                        {
-                            <MudCheckBox T="bool" ValueChanged="(isCheckboxMarked) => HandleTransactionGroupCheckboxValueChanged(context, isCheckboxMarked)" />
-                        }
-                    </MudStack>
-                </MudTd>
+                <MudTd>@context.OperationDate</MudTd>
+                <MudTd>@context.Amount</MudTd>
+                @if (context is Models.Transaction.Transaction transaction)
+                {
+                    <MudTd>@context.OperationTitle</MudTd>
+                    <MudTd>@(!string.IsNullOrEmpty(transaction.Recipient) ? transaction.Recipient : transaction.Sender)</MudTd>
+                    <MudTd>
+                        <MudStack Row="true">
+                            <MudIconButton Icon="@(Edition ? Icons.Material.Rounded.Edit : Icons.Material.Rounded.Search)" Variant="Variant.Outlined" OnClick="async () => await ShowTransactionDialogAsync(transaction)" />
+                            @if (AssigningToGroupActive)
+                            {
+                                <MudCheckBox T="bool" Disabled="transaction.TransactionGroupId.HasValue" ValueChanged="(isCheckboxMarked) => HandleTransactionGroupCheckboxValueChanged(transaction, isCheckboxMarked)" />
+                            }
+                        </MudStack>
+                    </MudTd>
+                }
+                else if (context is Models.Transaction.TransactionRepresentant transactionRepresentant)
+                {
+                    <MudTd>@("Group of transactions: " + context.OperationTitle)</MudTd>
+                    <MudTd>@string.Empty</MudTd>
+                    <MudTd>
+                    <MudIconButton Icon="@(Edition ? Icons.Material.Rounded.Edit : Icons.Material.Rounded.Search)" Variant="Variant.Outlined" OnClick="async () => await ShowTransactionDialogAsync(transactionRepresentant)" />
+                    </MudTd>
+                }
             </RowTemplate>
         </MudTable>
     </MudPaper>
@@ -68,20 +80,34 @@
     [Parameter]
     public TransactionGroup TransactionGroup { get; set; } = new();
 
-    private List<Models.Transaction.TransactionGroup?> transactionGroups { get; set; } = [];
+    private IEnumerable<Models.Transaction.ITransaction?> tableGroupedTransactions { get; set; } = [];
 
-    private async Task ShowTransactionDialogAsync(Models.Transaction.Transaction? transaction)
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        tableGroupedTransactions = FilePackage?.ConvertIntoIEnumerableOfGroupRepresentantsAndOtherTransactions().OrderByDescending(t => t?.OperationDate).ToArray() ?? [];
+    }
+
+
+    private async Task ShowTransactionDialogAsync(Models.Transaction.ITransaction? transaction)
     {
         var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth = MaxWidth.Medium };
 
-        var parameters = new DialogParameters<ExpensesManagementApp.Client.Components.Dialogs.TransactionDialog>
+        Type type = transaction is Models.Transaction.Transaction ? typeof(ExpensesManagementApp.Client.Components.Dialogs.TransactionDialog) : typeof(ExpensesManagementApp.Client.Components.Dialogs.TransactionGroupDialog);
+
+        bool istransaction = transaction is Models.Transaction.Transaction;
+
+        string ITransactionParamName = istransaction ? "Transaction" : "TransactionGroup";
+
+        var parameters = new DialogParameters
         {
-            { p => p.Edition, Edition},
-            { p => p.Transaction, transaction},
-            { p => p.FileId, FilePackage?.File?.FileId}
+            ["Edition"] = Edition,
+            ["FileId"] = FilePackage?.File?.FileId,
+            [ITransactionParamName] = istransaction ? transaction : FilePackage?.TransactionGroups?.Where(tg => transaction?.TransactionGroupId == tg?.TransactionGroupId).FirstOrDefault()
         };
 
-        var result = await dialogService.ShowAsync<Components.Dialogs.TransactionDialog>("Transaction", parameters, options);
+        var result = await dialogService.ShowAsync(type, "Transaction", parameters, options);
     }
 
     private void HandleTransactionGroupCheckboxValueChanged(Models.Transaction.Transaction transaction, bool isCheckboxMarked)
@@ -99,5 +125,6 @@
     private async Task AddTransactionGroupAsync()
     {
         var _httpResult = await transactionService.AssignTransactionsToGroup(TransactionGroup);
+        navigationManager.NavigateTo($"/file/{FilePackage?.File?.FileId}", true);
     }
 }

@@ -9,5 +9,16 @@ namespace ExpensesManagementApp.Database
         public DbSet<DbModels.File> Files { get; set; }
         public DbSet<TransactionGroup> TransactionGroups { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<DbModels.File>()
+                .HasMany(f => f.Transactions)
+                .WithOne(t => t.File)
+                .HasForeignKey(f => f.FileId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }

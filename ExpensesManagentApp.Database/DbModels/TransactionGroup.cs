@@ -12,6 +12,7 @@ namespace ExpensesManagementApp.Database.DbModels
         public double TransactionGroupSum { get; set; }
         public double TransactionGroupExpensesSum { get; set; }
         public double TransactionGroupIncomeSum { get; set; }
+        public string? JsonGroupRepresentant { get; set; }
         public DateTime UpoloadDate { get; set; } = DateTime.Now;
         public DateTime? UpdateDate { get; set; }
 
@@ -25,7 +26,8 @@ namespace ExpensesManagementApp.Database.DbModels
                 TransactionGroupName = transactionGroup.TransactionGroupName,
                 TransactionGroupSum = transactionGroup.TransactionGroupSum,
                 TransactionGroupExpensesSum = transactionGroup.TransactionGroupExpensesSum.HasValue ? transactionGroup.TransactionGroupExpensesSum.Value : 0,
-                TransactionGroupIncomeSum = transactionGroup.TransactionGroupIncomeSum.HasValue ? transactionGroup.TransactionGroupIncomeSum .Value : 0,
+                TransactionGroupIncomeSum = transactionGroup.TransactionGroupIncomeSum.HasValue ? transactionGroup.TransactionGroupIncomeSum.Value : 0,
+                JsonGroupRepresentant = Newtonsoft.Json.JsonConvert.SerializeObject(transactionGroup.Representant)
             };
         }
 
@@ -39,7 +41,8 @@ namespace ExpensesManagementApp.Database.DbModels
                 TransactionGroupExpensesSum = transactionGroup.TransactionGroupExpensesSum,
                 TransactionGroupIncomeSum = transactionGroup.TransactionGroupIncomeSum,
                 NumberOfTransactionsInGroup = transactionGroup?.Transactions?.Count() ?? 0,
-                Transactions = transactionGroup?.Transactions?.Select(t => Transaction.ConvertToTransactionDTO(t)).ToList() ?? []
+                Transactions = transactionGroup?.Transactions?.Select(t => Transaction.ConvertToTransactionDTO(t)).ToList() ?? [],
+                Representant = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Transaction.TransactionRepresentant?>(transactionGroup?.JsonGroupRepresentant ?? string.Empty),
             };
         }
     }
