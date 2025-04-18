@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
+using ExpensesManagementApp.Client.Services.CategoryService;
+using ExpensesManagementApp.Logic.Repositories.CategoriesRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,10 +29,12 @@ builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAu
 builder.Services.AddScoped<IFileService, ExpensesManagementApp.Services.FileService.FileService>();
 builder.Services.AddScoped<ITransactionService, ExpensesManagementApp.Services.TransactionService>();
 builder.Services.AddScoped<IStatisticsService, ExpensesManagementApp.Services.StatisticsService>();
+builder.Services.AddScoped<ICategoryService, ExpensesManagementApp.Services.CategoryService>();
 
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
 builder.Services.AddScoped<StatisticsRepository>();
+builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -82,7 +86,8 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 app.MapGroup("").MapFiles();
-app.MapGroup("").MapExpenses();
+app.MapGroup("").MapTransactions();
 app.MapGroup("").MapStatistics();
+app.MapGroup("").MapCategories();
 
 app.Run();

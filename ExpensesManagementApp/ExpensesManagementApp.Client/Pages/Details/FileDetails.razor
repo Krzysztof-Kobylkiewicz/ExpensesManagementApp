@@ -5,8 +5,10 @@
 
 <PageTitle>File details</PageTitle>
 
+<MudButton Color="Color.Primary">TEST COLOR</MudButton>
+
 <MudPaper Class="mt-5 mb-5 pa-5">
-    <h3>File - @(Edition ? "edition" : "view")</h3>
+    <h5>File - @(Edition ? "edition" : "details")</h5>
     @if (_filePackage is not null && _filePackage.File is not null)
     {
         <MudGrid>
@@ -22,36 +24,17 @@
                     <MudTextField T="string" Value="Models.File.File.BankTypeText(_filePackage.File.BankType.Value)" ReadOnly="true" Label="@DisplayHelper.DisplayName(() => _filePackage.File.BankType)" />
                 </MudItem>
             }
-            <MudItem xs="12" xl="12">
-                <MudStack Row="true">
-                    @if (Edition)
-                    {
-                        <MudTooltip Text="Save changes">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Save" OnClick="SaveChangesAndSwitchToViewModeAsync"/>
-                        </MudTooltip>
-                        <MudTooltip Text="Discard changes">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Cancel" OnClick="DiscardChangesAndSwitchToViewMode"/>
-                        </MudTooltip>
-                        <MudTooltip Text="Delete file">
-                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteFilePackageAsync"/>
-                        </MudTooltip>
-                    }
-                    else
-                    {
-                        <MudTooltip Text="Edit">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="SwitchToEditionMode" Disabled="_assigningToGroupActive" />
-                        </MudTooltip>
-                    }
-                    <MudTooltip Text="@(_assigningToGroupActive ? "Discard changes" : "Assign transactions to group")">
-                        <MudIconButton Icon="@(_assigningToGroupActive ? @Icons.Material.Rounded.Cancel : Icons.Material.Rounded.GroupAdd)" OnClick="() => _assigningToGroupActive = !_assigningToGroupActive" Disabled="Edition" />
-                    </MudTooltip>
-                </MudStack>
-            </MudItem>
-            <MudExpansionPanels Class="mb-5 pa-5">
-                <MudExpansionPanel Text="@(DisplayHelper.DisplayName(() => _filePackage.File.Transactions))" Expanded="true">
-                    <ExpensesManagementApp.Client.Pages.Transactions FilePackage="_filePackage" Edition="Edition" AssigningToGroupActive="_assigningToGroupActive"/>
-                </MudExpansionPanel>
-            </MudExpansionPanels>
+            @if (_filePackage?.File?.Transactions?.Count() > 0)
+            {
+                <MudExpansionPanels Class="mb-5 pa-5">
+                    <MudExpansionPanel Expanded="true">
+                        <ExpensesManagementApp.Client.Components.Transactions FilePackage="_filePackage" Edition="Edition" 
+                        AssigningToGroupActive="_assigningToGroupActive" Categorization="_categoriaztion"
+                        OnSaveChanges="async () => await SaveChangesAndSwitchToViewModeAsync()" OnDiscardChanges="() => DiscardChangesAndSwitchToViewMode()"
+                        OnDeleteFilePackage="async () => await DeleteFilePackageAsync()" OnSwitchToEditionMode="() => SwitchToEditionMode()"/>
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            }
         </MudGrid>
     }
     else if (!string.IsNullOrEmpty(_errorMessage))
@@ -75,6 +58,8 @@
     private string? _fileCopyJson { get; set; }
 
     private bool _assigningToGroupActive { get; set; } = false;
+
+    private bool _categoriaztion { get; set; } = false;
 
     private Models.Transaction.TransactionGroup _transactionGroup { get; set; } = new();
 
@@ -141,7 +126,7 @@
         if (_filePackage is null)
             return;
 
-        _filePackage.File = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.File.File?>(_fileCopyJson ?? string.Empty);
+        _filePackage = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.File.FilePackage?>(_fileCopyJson ?? string.Empty);
 
         _fileCopyJson = string.Empty;
 

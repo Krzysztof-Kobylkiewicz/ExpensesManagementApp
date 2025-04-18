@@ -4,6 +4,8 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
 {
     public interface ITransactionsRepository
     {
+        Task<Models.Transaction.Transaction> GetTransactionAsync(Guid id);
+        Task<IEnumerable<Models.Transaction.Transaction>> GetAllTransactionsAsync();
         Task AddTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions);
         Task AddTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions, IDbContextTransaction dbContextTransaction);
         Task<bool> DeleteTransactionsAsync(Guid id);

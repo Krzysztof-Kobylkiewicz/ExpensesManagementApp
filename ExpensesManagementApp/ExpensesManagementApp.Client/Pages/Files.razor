@@ -6,6 +6,8 @@
 
 <PageTitle>Files</PageTitle>
 
+<MudButton Variant="Variant.Outlined" Color="Color.Dark" OnClick="@(() => {navigationManager.NavigateTo("/files/import");})">+ Import files</MudButton>
+
 <MudPaper Class="mt-5">
     @if (_httpResult?.Data != null)
     {

@@ -9,6 +9,7 @@ namespace ExpensesManagementApp.Database
         public DbSet<DbModels.File> Files { get; set; }
         public DbSet<TransactionGroup> TransactionGroups { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Category> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

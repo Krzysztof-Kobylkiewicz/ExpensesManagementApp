@@ -10,6 +10,16 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
 {
     public class TransactionsRepository(ApplicationDbContext database, ILogger<TransactionsRepository> logger) : ITransactionsRepository
     {
+        public async Task<Models.Transaction.Transaction> GetTransactionAsync(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<Models.Transaction.Transaction>> GetAllTransactionsAsync()
+        {
+            return await database.Transactions.Select(t => Transaction.ConvertToTransactionDTO(t)).ToArrayAsync();
+        }
+
         public async Task AddTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions)
         {
             using var _dbTransaction = database.Database.BeginTransaction();
@@ -64,7 +74,7 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
             using var _dbTransaction = database.Database.BeginTransaction();
             try
             {
-                var transactionToDelete = await database.Transactions.FirstOrDefaultAsync(e => e.TransactionId == id) ?? throw new ExpensesManagementAppDbException("No such transaction was found.", 404);
+                var transactionToDelete = await database.Transactions.FirstOrDefaultAsync(e => e.Id == id) ?? throw new ExpensesManagementAppDbException("No such transaction was found.", 404);
 
                 database.Transactions.Remove(transactionToDelete);
                 int n = await database.SaveChangesAsync();
@@ -89,7 +99,7 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
             using var _dbTransaction = database.Database.BeginTransaction();
             try
             {
-                var transactionsToUpdate = await database.Transactions.Where(db_t => transactionGroup.Transactions.Select(t => t.TransactionId).Contains(db_t.TransactionId)).ToListAsync();
+                var transactionsToUpdate = await database.Transactions.Where(db_t => transactionGroup.Transactions.Select(t => t.TransactionId).Contains(db_t.Id)).ToListAsync();
 
                 transactionGroup.TransactionGroupSum = Math.Round(transactionGroup.Transactions.Select(t => t.Amount).Sum(), 2);
                 transactionGroup.TransactionGroupExpensesSum = Math.Round(transactionGroup.Transactions.Where(t => t.Amount < 0).Select(t => t.Amount).Sum(), 2);
@@ -146,7 +156,7 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
 
         public async Task<IEnumerable<Models.Transaction.TransactionGroup>> GetTransactionGroupsAsync(IEnumerable<Guid?> ids, IDbContextTransaction dbContextTransaction)
         {
-            return await database.TransactionGroups.Where(tg => ids.Contains(tg.TransactionGroupId)).Select(tg => TransactionGroup.ConvertToTransactionGroupDTO(tg)).ToArrayAsync();
+            return await database.TransactionGroups.Where(tg => ids.Contains(tg.Id)).Select(tg => TransactionGroup.ConvertToTransactionGroupDTO(tg)).ToArrayAsync();
         }
     }
 }

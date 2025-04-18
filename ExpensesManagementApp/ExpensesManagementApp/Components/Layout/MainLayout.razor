@@ -2,9 +2,9 @@
 @using MudBlazor
 
 <MudPopoverProvider @rendermode=InteractiveAuto/>
-<MudThemeProvider @rendermode=InteractiveAuto />
 <MudDialogProvider @rendermode=InteractiveAuto />
 <MudSnackbarProvider @rendermode=InteractiveAuto />
+<MudThemeProvider @rendermode=InteractiveAuto Theme="ExpensesManagementAppCustomTheme"/>
 
 <div class="page">
     <div class="sidebar">
@@ -27,3 +27,20 @@
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code{
+
+    private MudTheme ExpensesManagementAppCustomTheme = new()
+    {
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#C2B9B8",
+            AppbarBackground = "#C2B9B8",
+        },
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#C2B9B8",
+            AppbarBackground = "#C2B9B8",
+        }
+    };
+}

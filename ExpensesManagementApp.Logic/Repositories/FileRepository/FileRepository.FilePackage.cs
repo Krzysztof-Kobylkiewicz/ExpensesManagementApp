@@ -48,9 +48,9 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             using var transaction = database.Database.BeginTransaction();
             try
             {
-                var fileToDelete = await database.Files.Include(f => f.Transactions).FirstOrDefaultAsync(f => f.FileId == id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
+                var fileToDelete = await database.Files.Include(f => f.Transactions).FirstOrDefaultAsync(f => f.Id == id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
                 var fileTransactionGroupIds = fileToDelete.Transactions?.Where(t => t.TransactionGroupId.HasValue).Select(t => t.TransactionGroupId) ?? [];
-                var transactionGroupsToDelete = await database.TransactionGroups.Where(tg => fileTransactionGroupIds.Contains(tg.TransactionGroupId)).ToArrayAsync();
+                var transactionGroupsToDelete = await database.TransactionGroups.Where(tg => fileTransactionGroupIds.Contains(tg.Id)).ToArrayAsync();
 
                 database.Files.Remove(fileToDelete);
                 await database.SaveChangesAsync();

@@ -1,0 +1,107 @@
+﻿@page "/categories"
+@rendermode InteractiveAuto
+@inject ExpensesManagementApp.Client.Services.CategoryService.ICategoryService categoryService
+@inject NavigationManager navigationManager
+
+<MudExpansionPanels>
+    <MudExpansionPanel Text="Add category" Expanded="true">
+        <MudGrid>
+            <MudItem md="3" xs="12">
+                <MudTextField T="string" @bind-Value="_category.Name" Label="@DisplayHelper.DisplayName(() => _category.Name)"/>
+            </MudItem>
+            <MudItem md="3" xs="12">
+                <MudTextField T="string" @bind-Value="_category.Code" Label="@DisplayHelper.DisplayName(() => _category.Code)" />
+            </MudItem>
+            <MudItem md="3" xs="12">
+                <MudTooltip Text="Add category">
+                    <MudIconButton Icon="@Icons.Material.Rounded.Upload" OnClick="UploadCategoryAsync"/>
+                </MudTooltip>
+            </MudItem>
+            <MudItem md="12" xs="12">
+                <MudTextField T="string" @bind-Value="_category.Description" Label="@DisplayHelper.DisplayName(() => _category.Description)" />
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<MudPaper Class="mt-5 mb-5 pa-5">
+    <MudStack Row=true>
+        <MudTooltip Text="Edit">
+            <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="() => {_edition = !_edition;}"/>
+        </MudTooltip>
+    </MudStack>
+    <MudGrid>
+        @foreach (var category in _httpResultCategories?.Data ?? [])
+        {
+            <MudItem md="2" xs="12" Class="mt-5 mb-5 mx-5">
+                <MudPaper Elevation="3" Class="pa-5">
+                    @if (_edition)
+                    {
+                        <MudStack Row=true AlignItems="AlignItems.End" Justify="Justify.FlexEnd">
+                            <MudTooltip Text="Delete category">
+                                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Rounded.Close" OnClick="async () => await DeleteCategoryAsync(category.CategoryId)" />
+                            </MudTooltip>
+                        </MudStack>
+                    }
+                    <MudGrid>
+                        <MudItem md="6" xs="12">
+                            <MudTextField Disabled="!_edition" Value="category.Name" Label="@DisplayHelper.DisplayName(() => category.Name)"/>
+                        </MudItem>
+                        <MudItem md="6" xs="12">
+                            <MudTextField Disabled="!_edition" Value="category.Code" Label="@DisplayHelper.DisplayName(() => category.Code)" />
+                        </MudItem>
+                        <MudItem md="12" xs="12">
+                            <MudTextField Disabled="!_edition" Value="category.Description" Label="@DisplayHelper.DisplayName(() => category.Description)" />
+                        </MudItem>
+                    </MudGrid>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MudPaper>
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <MudAlert Severity="Severity.Error">@_errorMessage</MudAlert>
+}
+
+@code {
+
+    private Models.Category.Category _category { get; set; } = new Models.Category.Category();
+
+    private Models.HttpResult.HttpResult<Models.Category.Category>? _httpResultNewCategory { get; set; }
+
+    private Models.HttpResult.HttpResult<IEnumerable<Models.Category.Category>>? _httpResultCategories { get; set; }
+
+    private bool _edition { get; set; } = false;
+
+    private string? _errorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        _httpResultCategories = await categoryService.GetAllCategoriesAsync();
+    }
+
+    private async Task UploadCategoryAsync()
+    {
+        if (_category is null)
+            return;
+
+        _httpResultNewCategory = await categoryService.UploadCategoryAsync(_category);
+        _category = new Models.Category.Category();
+        ForcePageReload();
+    }
+
+    private async Task DeleteCategoryAsync(Guid id)
+    {
+        var response = await categoryService.DeleteCategoryAsync(id);
+
+        if (!response.Data)
+            _errorMessage = response.Message;
+        else
+            ForcePageReload();
+    }
+
+    private void ForcePageReload() => navigationManager.NavigateTo(navigationManager.Uri, true);
+}
