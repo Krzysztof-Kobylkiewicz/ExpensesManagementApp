@@ -1,20 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ExpensesManagementApp.Database.DbModels
+﻿namespace ExpensesManagementApp.Database.DbModels
 {
-    public class TransactionGroup
+    public class TransactionGroup : DbModel
     {
         public TransactionGroup() { }
 
-        [Key]
-        public Guid TransactionGroupId { get; set; }
         public string? TransactionGroupName { get; set; }
         public double TransactionGroupSum { get; set; }
         public double TransactionGroupExpensesSum { get; set; }
         public double TransactionGroupIncomeSum { get; set; }
         public string? JsonGroupRepresentant { get; set; }
-        public DateTime UpoloadDate { get; set; } = DateTime.Now;
-        public DateTime? UpdateDate { get; set; }
 
         public ICollection<Transaction>? Transactions { get; set; }
 
@@ -22,7 +16,7 @@ namespace ExpensesManagementApp.Database.DbModels
         {
             return new TransactionGroup
             {
-                TransactionGroupId = transactionGroup.TransactionGroupId,
+                Id = transactionGroup.TransactionGroupId,
                 TransactionGroupName = transactionGroup.TransactionGroupName,
                 TransactionGroupSum = transactionGroup.TransactionGroupSum,
                 TransactionGroupExpensesSum = transactionGroup.TransactionGroupExpensesSum.HasValue ? transactionGroup.TransactionGroupExpensesSum.Value : 0,
@@ -35,7 +29,7 @@ namespace ExpensesManagementApp.Database.DbModels
         {
             return new Models.Transaction.TransactionGroup
             {
-                TransactionGroupId = transactionGroup.TransactionGroupId,
+                TransactionGroupId = transactionGroup.Id,
                 TransactionGroupName = transactionGroup.TransactionGroupName,
                 TransactionGroupSum = transactionGroup.TransactionGroupSum,
                 TransactionGroupExpensesSum = transactionGroup.TransactionGroupExpensesSum,

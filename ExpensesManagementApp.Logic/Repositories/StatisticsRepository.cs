@@ -11,19 +11,30 @@ namespace ExpensesManagementApp.Logic.Repositories
             try
             {
                 var latestExpenseDate = await database.Transactions.MaxAsync(e => e.OperationDate);
+                var nDays = DateTime.DaysInMonth(latestExpenseDate.Year, latestExpenseDate.Month);
 
-                var amount = await database.Transactions.Where(e => e.OperationDate.Month == latestExpenseDate.Month).Select(e => e.Amount).ToArrayAsync();
+                var amount = await database.Transactions.Where(e => e.OperationDate.Month == latestExpenseDate.Month).Select(e => e.Amount).OrderByDescending(a => a).ToArrayAsync();
+                var nAll = amount.Length;
+                var nI = amount.Where(a => a > 0).ToArray().Length;
+                var nE = amount.Where(a => a < 0).ToArray().Length;
 
-                var sum = amount.Sum();
-                var avg = sum / 30;
-                var median = amount.OrderByDescending(a => a).ToArray()[amount.Length / 2];
 
-                return new Statistics
+                var statistics = new Statistics
                 {
-                    Sum = Math.Round(sum, 2),
-                    Average = Math.Round(avg, 2),
-                    Median = Math.Round(median, 2)
+                    Sum = amount.Sum(),
+                    IncomeSum = amount.Where(a => a > 0).Sum(),
+                    ExpensesSum = amount.Where(a => a < 0).Sum(),
+                    Average = amount.Sum() / nDays,
+                    IncomeAverage = amount.Where(a => a > 0).Sum() / nDays,
+                    ExpensesAverage = amount.Where(a => a < 0).Sum() / nDays,
+                    Median = nAll % 2 == 0 ? (amount[nAll / 2] + amount[(nAll / 2) + 1]) / 2 : amount[(int)(nAll / 2 + 0.5)],
+                    IncomeMedian = nI % 2 == 0 ? (amount.Where(a => a > 0).ToArray()[nI / 2] + amount.Where(a => a > 0).ToArray()[(nI / 2) + 1]) / 2 : amount.Where(a => a > 0).ToArray()[(int)(nI / 2 + 0.5)],
+                    ExpensesMedian = nE % 2 == 0 ? (amount.Where(a => a < 0).ToArray()[nE / 2] + amount.Where(a => a < 0).ToArray()[(nE / 2) + 1]) / 2 : amount.Where(a => a < 0).ToArray()[(int)(nE / 2 + 0.5)]
                 };
+
+                statistics.Round();
+
+                return statistics;
             }
             catch (InvalidOperationException ioe)
             {

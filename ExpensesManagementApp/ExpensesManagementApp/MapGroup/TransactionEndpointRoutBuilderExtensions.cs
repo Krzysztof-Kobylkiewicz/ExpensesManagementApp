@@ -4,17 +4,19 @@ namespace ExpensesManagementApp.MapGroup
 {
     internal static class TransactionEndpointRoutBuilderExtensions
     {
-        internal static IEndpointConventionBuilder MapExpenses(this IEndpointRouteBuilder endpoints)
+        internal static IEndpointConventionBuilder MapTransactions(this IEndpointRouteBuilder endpoints)
         {
-            var expensesGroup = endpoints.MapGroup("api/v1/transactions");
+            var transactionsGroup = endpoints.MapGroup("api/v1/transactions");
 
             // endpoints
 
-            expensesGroup.MapDelete("/delete/{id:guid}", (ITransactionService transactionService, Guid id) => transactionService.DeleteTransactionAsync(id));
+            transactionsGroup.MapGet("/get/all", (ITransactionService transactionService) => transactionService.GetAllTransactionsAsync());
 
-            expensesGroup.MapPost("/assignToGroup", (ITransactionService transactionService, Models.Transaction.TransactionGroup transactionGroup) => transactionService.AssignTransactionsToGroup(transactionGroup));
+            transactionsGroup.MapDelete("/delete/{id:guid}", (ITransactionService transactionService, Guid id) => transactionService.DeleteTransactionAsync(id));
 
-            return expensesGroup;
+            transactionsGroup.MapPost("/assignToGroup", (ITransactionService transactionService, Models.Transaction.TransactionGroup transactionGroup) => transactionService.AssignTransactionsToGroup(transactionGroup));
+
+            return transactionsGroup;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
     {
         public async Task<Models.File.File?> GetFileAsync(Guid id)
         {
-            var dbFile = await database.Files.Include(f => f.Transactions).FirstOrDefaultAsync(f => f.FileId == id) ?? throw new ExpensesManagementAppDbException("No file with given id was found", 404);
+            var dbFile = await database.Files.Include(f => f.Transactions).FirstOrDefaultAsync(f => f.Id == id) ?? throw new ExpensesManagementAppDbException("No file with given id was found", 404);
 
             return Database.DbModels.File.ConvertToFileDTO(dbFile);
         }
@@ -69,7 +69,7 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             using var transaction = database.Database.BeginTransaction();
             try
             {
-                var fileToUpdate = await database.Files.FirstOrDefaultAsync(f => f.FileId == file.FileId) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
+                var fileToUpdate = await database.Files.FirstOrDefaultAsync(f => f.Id == file.FileId) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
 
                 fileToUpdate.UpdateFile(file);
 
@@ -92,7 +92,7 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             using var transaction = database.Database.BeginTransaction();
             try
             {
-                var fileToDelete = await database.Files.FirstOrDefaultAsync(f => f.FileId == id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
+                var fileToDelete = await database.Files.FirstOrDefaultAsync(f => f.Id == id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
 
                 database.Files.Remove(fileToDelete);
                 int n = await database.SaveChangesAsync();

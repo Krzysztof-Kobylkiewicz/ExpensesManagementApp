@@ -1,0 +1,314 @@
+﻿@rendermode InteractiveAuto
+@using ExpensesManagementApp.Models.Transaction
+@inject IDialogService dialogService
+@inject NavigationManager navigationManager
+@inject ExpensesManagementApp.Client.Services.TransactionService.ITransactionService transactionService
+@inject ExpensesManagementApp.Client.Services.CategoryService.ICategoryService categoryService
+
+<MudGrid>
+    <MudItem xs="12" xl="12">
+        <MudPaper Class="pa-2">
+            <MudStack Row="true">
+                @if (Edition)
+                {
+                    <MudTooltip Text="Save changes">
+                        <MudIconButton Icon="@Icons.Material.Rounded.Save" OnClick="SaveChanges" />
+                    </MudTooltip>
+                    <MudTooltip Text="Discard changes">
+                        <MudIconButton Icon="@Icons.Material.Rounded.Cancel" OnClick="DiscardChangesAndSwitchToViewMode" />
+                    </MudTooltip>
+                    @if (OnDeleteFilePackage.HasDelegate)
+                    {
+                        <MudTooltip Text="Delete file">
+                            <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="async () => { if (OnDeleteFilePackage.HasDelegate) await OnDeleteFilePackage.InvokeAsync(); } " />
+                        </MudTooltip>
+                    }
+                }
+                else
+                {
+                    <MudTooltip Text="Edit">
+                        <MudIconButton Icon="@Icons.Material.Rounded.Edit" OnClick="SwitchToEditionMode" Disabled="AssigningToGroupActive || Categorization" />
+                    </MudTooltip>
+                }
+                <MudTooltip Text="@(AssigningToGroupActive ? "Discard changes" : "Assign transactions to group")">
+                    <MudIconButton Icon="@(AssigningToGroupActive ? Icons.Material.Rounded.Cancel : Icons.Material.Rounded.GroupAdd)" OnClick="SwitchToAssigningToGroupMode" Disabled="Edition" />
+                </MudTooltip>
+                <MudTooltip Text="@(Categorization ? "Discard changes" : "Add categories")">
+                    <MudIconButton Icon="@(Categorization ? Icons.Material.Rounded.Cancel : Icons.Material.Outlined.Category)" OnClick="() => Categorization = !Categorization" Disabled="Edition"/>
+                </MudTooltip>
+            </MudStack>
+        </MudPaper>
+    </MudItem>
+    <MudItem md="12" xs="12">
+        <MudGrid>
+            @if (AssigningToGroupActive)
+            {
+                <MudItem md="6" xs="12">
+                    <MudPaper Class="pa-5">
+                        <MudStack Row=true Justify="Justify.SpaceBetween">
+                            <h5>@("Assign transactions to group " + (TransactionGroup.Transactions.Count > 0 ? $"({TransactionGroup.Transactions.Count})" : string.Empty))</h5>
+                            <MudTooltip Text="Assign transactions to group">
+                                <MudIconButton Icon="@Icons.Material.Rounded.Save" OnClick="AddTransactionGroupAsync" Size="Size.Small" />
+                            </MudTooltip>
+                        </MudStack>
+                        <MudGrid>
+                            <MudItem md="4" xs="12">
+                                <MudTextField Placeholder="Income" T="string" @bind-Value="TransactionGroup.TransactionGroupName" Label="@(DisplayHelper.DisplayName(() => TransactionGroup.TransactionGroupName))" />
+                            </MudItem>
+                            <MudItem md="8" xs="12">
+                                <MudTextField T="string" Text="@string.Join(Environment.NewLine, TransactionGroup.Transactions.Select(t => t.OperationTitle ?.Substring(0, t.OperationTitle?.Length < n ? t.OperationTitle?.Length ?? 20 : n) + (t.OperationTitle?.Length > n ? "..." : string.Empty)) ?? [])"
+                                AutoGrow=true Underline=false MaxLines="3" />
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+                if (!Categorization)
+                {
+                    <MudItem md="6" xs="12">
+
+                    </MudItem>
+                }
+            }
+            @if (Categorization)
+            {
+                if (!AssigningToGroupActive)
+                {
+                    <MudItem md="6" xs="12">
+
+                    </MudItem>
+                }
+                <MudItem md="6" xs="12">
+                    <MudPaper Class="pa-5">
+                        <MudStack Row=true Justify="Justify.SpaceBetween">
+                            <h5>Assign transactions to category</h5>
+                            <MudTooltip Text="Assign transactions to category">
+                                <MudIconButton Icon="@Icons.Material.Rounded.Save" OnClick="() => {}" Size="Size.Small" />
+                            </MudTooltip>
+                        </MudStack>
+                        <MudGrid>
+                            <MudItem md="6" xs="12">
+                                <MudAutocomplete @bind-Value="_categoriesSearchString"
+                                SearchFunc="async (searchString, ct) => await CategoriesSearchFunction(searchString)"
+                                Clearable=true>
+
+                                </MudAutocomplete>
+                            </MudItem>
+                            <MudItem md="6" xs="12">
+
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudItem>
+</MudGrid>
+
+
+<h5>Transactions</h5>
+<MudTable T="Models.Transaction.ITransaction" Items="tableGroupedTransactions" Hover=true Dense="true">
+    <HeaderContent>
+        <MudTh>Operation date</MudTh>
+        <MudTh>Amount</MudTh>
+        <MudTh>OperationTitle</MudTh>
+        <MudTh>Recipient/Sender</MudTh>
+        <MudTh>Action</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd>@context.OperationDate</MudTd>
+        <MudTd>@context.Amount</MudTd>
+        @if (context is Models.Transaction.Transaction transaction)
+        {
+            <MudTd>@context.OperationTitle</MudTd>
+            <MudTd>@(!string.IsNullOrEmpty(transaction.Recipient) ? transaction.Recipient : transaction.Sender)</MudTd>
+            <MudTd>
+                <MudStack Row="true">
+                    <MudIconButton Icon="@(Edition ? Icons.Material.Rounded.Edit : Icons.Material.Rounded.Search)" Variant="Variant.Outlined" OnClick="async () => await ShowTransactionDialogAsync(transaction)" />
+                    @if (AssigningToGroupActive)
+                    {
+                        <MudCheckBox T="bool" Disabled="transaction.TransactionGroupId.HasValue" ValueChanged="(isCheckboxMarked) => HandleTransactionGroupCheckboxValueChanged(transaction, isCheckboxMarked)" />
+                    }
+                </MudStack>
+            </MudTd>
+        }
+        else if (context is Models.Transaction.TransactionRepresentant transactionRepresentant)
+        {
+            <MudTd>@("Group of transactions: " + context.OperationTitle)</MudTd>
+            <MudTd>@string.Empty</MudTd>
+            <MudTd>
+                <MudIconButton Icon="@(Edition ? Icons.Material.Rounded.Edit : Icons.Material.Rounded.Search)" Variant="Variant.Outlined" OnClick="async () => await ShowTransactionDialogAsync(transactionRepresentant)" />
+            </MudTd>
+        }
+    </RowTemplate>
+</MudTable>
+@if (_httpResult?.Data is null && !string.IsNullOrEmpty(_httpResult?.Message))
+{
+    <MudAlert Severity="Severity.Error">@_httpResult.Message</MudAlert>
+}
+
+@code {
+
+    [Parameter]
+    public Models.File.FilePackage? FilePackage { get; set; }
+
+    [Parameter]
+    public bool Edition { get; set; }
+
+    [Parameter]
+    public bool AssigningToGroupActive { get; set; }
+
+    [Parameter]
+    public bool Categorization { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> AssigningToGroupActiveCallback { get; set; }
+
+    [Parameter]
+    public TransactionGroup TransactionGroup { get; set; } = new();
+
+    [Parameter]
+    public bool AllTransactionsView { get; set; } = false;
+
+    [Parameter]
+    public EventCallback OnSaveChanges { get; set; }
+
+    [Parameter]
+    public EventCallback OnDiscardChanges { get; set; }
+
+    [Parameter]
+    public EventCallback OnDeleteFilePackage { get; set; }
+
+    [Parameter]
+    public EventCallback OnSwitchToEditionMode { get; set; }
+
+    private Models.HttpResult.HttpResult<IEnumerable<Models.Transaction.Transaction>>? _httpResult { get; set; }
+
+    private IEnumerable<Models.Transaction.ITransaction?> tableGroupedTransactions { get; set; } = [];
+
+    private string? _transactionsCopyJson { get; set; }
+
+    private int n = 50;
+
+    private string? _categoriesSearchString { get; set; }
+
+    private string _httpResultErrorMessage { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        if (AllTransactionsView)
+        {
+            _httpResult = await transactionService.GetAllTransactionsAsync();
+
+            if (_httpResult.Data is not null)
+            {
+                tableGroupedTransactions = _httpResult.Data;
+            }
+        }
+        else
+        {
+            tableGroupedTransactions = FilePackage?.ConvertIntoIEnumerableOfGroupRepresentantsAndOtherTransactions().OrderByDescending(t => t?.OperationDate).ToArray() ?? [];
+        }
+    }
+
+
+    private async Task ShowTransactionDialogAsync(Models.Transaction.ITransaction? transaction)
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true, CloseButton = true, MaxWidth = MaxWidth.Medium };
+
+        Type type = transaction is Models.Transaction.Transaction ? typeof(ExpensesManagementApp.Client.Components.Dialogs.TransactionDialog) : typeof(ExpensesManagementApp.Client.Components.Dialogs.TransactionGroupDialog);
+
+        bool istransaction = transaction is Models.Transaction.Transaction;
+
+        string ITransactionParamName = istransaction ? "Transaction" : "TransactionGroup";
+
+        var parameters = new DialogParameters
+        {
+            ["Edition"] = Edition,
+            ["FileId"] = FilePackage?.File?.FileId,
+            [ITransactionParamName] = istransaction ? transaction : FilePackage?.TransactionGroups?.Where(tg => transaction?.TransactionGroupId == tg?.TransactionGroupId).FirstOrDefault()
+        };
+
+        var result = await dialogService.ShowAsync(type, "Transaction", parameters, options);
+    }
+
+    private void HandleTransactionGroupCheckboxValueChanged(Models.Transaction.Transaction transaction, bool isCheckboxMarked)
+    {
+        if (isCheckboxMarked)
+        {
+            TransactionGroup.Transactions.Add(transaction);
+        }
+        else
+        {
+            TransactionGroup.Transactions.Remove(transaction);
+        }
+    }
+
+    private async Task AddTransactionGroupAsync()
+    {
+        var _httpResult = await transactionService.AssignTransactionsToGroup(TransactionGroup);
+        navigationManager.NavigateTo($"/file/{FilePackage?.File?.FileId}", true);
+    }
+
+    private async Task SaveChanges()
+    {
+        if (OnSaveChanges.HasDelegate) 
+            await OnSaveChanges.InvokeAsync();
+
+        //todo
+        //logika dla zapisu transakcji bez pliku
+
+    }
+
+    private async Task DiscardChangesAndSwitchToViewMode()
+    {
+        if (OnDiscardChanges.HasDelegate)
+            await OnDiscardChanges.InvokeAsync();
+
+        if (_httpResult is null)
+            return;
+
+        _httpResult.Data = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<Transaction>>(_transactionsCopyJson ?? string.Empty);
+        _transactionsCopyJson = string.Empty;
+    }
+
+    private async Task SwitchToEditionMode()
+    {
+        if (OnSwitchToEditionMode.HasDelegate)
+        {
+            await OnSwitchToEditionMode.InvokeAsync();
+        }
+        else
+        {
+            _transactionsCopyJson = Newtonsoft.Json.JsonConvert.SerializeObject(_httpResult?.Data);
+
+            Edition = true;
+        }
+    }
+
+    private void SwitchToAssigningToGroupMode()
+    {
+        if (AssigningToGroupActive)
+        {
+            TransactionGroup = new();
+        }
+
+        AssigningToGroupActive = !AssigningToGroupActive;
+    }
+
+    private async Task<IEnumerable<string?>> CategoriesSearchFunction(string searchString)
+    {
+        var _httpResult = await categoryService.GetCategoriesBySearchString(searchString);
+
+        if (_httpResult.Data is not null)
+        {
+            return _httpResult.Data.Select(d => d.Name);
+        }
+        else
+        {
+            _httpResultErrorMessage = _httpResult.Message ?? string.Empty;
+            return [];
+        }
+    }
+}

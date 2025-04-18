@@ -1,17 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
-using ExpensesManagementApp.Models.File;
+﻿using ExpensesManagementApp.Models.File;
 
 namespace ExpensesManagementApp.Database.DbModels
 {
-    public class File
+    public class File : DbModel
     {
-        [Key]
-        public Guid FileId { get; set; }
         public string? FileName { get; set; }
         public long? FileSize { get; set; }
         public BankTypeEnum BankType { get; set; }
-        public DateTime UpoloadDate { get; set; } = DateTime.Now;
-        public DateTime? UpdateDate { get; set; }
         public ICollection<Transaction>? Transactions { get; set; }
 
         public static File ConvertToDbFile(Models.File.File file)
@@ -21,7 +16,7 @@ namespace ExpensesManagementApp.Database.DbModels
 
             return new File
             {
-                FileId = file.FileId,
+                Id = file.FileId,
                 FileName = file.FileName,
                 FileSize = file.FileSize,
                 BankType = file.BankType.Value,
@@ -33,7 +28,7 @@ namespace ExpensesManagementApp.Database.DbModels
         {
             return new Models.File.File
             {
-                FileId = file.FileId,
+                FileId = file.Id,
                 FileName = file.FileName,
                 FileSize = file.FileSize,
                 BankType = file.BankType,
