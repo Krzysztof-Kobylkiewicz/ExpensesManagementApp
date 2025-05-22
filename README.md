@@ -14,7 +14,6 @@ Currently, the user interface for financial management is being developed - char
 ## Features
 - It is possible to import csv files generated from bank (currently only Santander);
 - Supports CRUD operations;
-- Allows to 
 - Easy management assured by charts, predictions and statistics - under development;
 - Ensuring stability through testing - planned for the next phase of development;
 - It is possible to group transactions;
