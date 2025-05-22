@@ -20,6 +20,33 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
             return await database.Transactions.Select(t => Transaction.ConvertToTransactionDTO(t)).ToArrayAsync();
         }
 
+        public async Task<IEnumerable<Models.Transaction.Transaction>> GetSpecificTransactionsAsync(Models.Transaction.ITransactionFiltr transactionFiltr)
+        {
+            return (await Filter(transactionFiltr).ToArrayAsync()).Select(t => Database.DbModels.Transaction.ConvertToTransactionDTO(t));
+        }
+
+        private IQueryable<Database.DbModels.Transaction> Filter(Models.Transaction.ITransactionFiltr transactionFiltr)
+        {
+            IQueryable<Database.DbModels.Transaction> query = database.Transactions;
+
+            var date = transactionFiltr.DateFrom;
+            var dateFrom = new DateOnly(date.Year, date.Month, date.Day);
+            query = query.Where(t => t.OperationDate.Year == dateFrom.Year && t.OperationDate.Month > dateFrom.Month);
+
+
+            date = transactionFiltr.DateTo;
+            var dateTo = new DateOnly(date.Year, date.Month, date.Day);
+            query = query.Where(t => t.OperationDate.Year == dateTo.Year && t.OperationDate.Month <= dateTo.Month);
+
+            //switch (transactionFiltr.AggregationInterval)
+            //{
+            //    case Models.Statistics.AggregationInterval.Yearly: query = query.Where(t => t.OperationDate.Year == DateTime.Now.Year); break;
+            //    default: throw new NotImplementedException();
+            //}
+
+            return query;
+        }
+
         public async Task AddTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions)
         {
             using var _dbTransaction = database.Database.BeginTransaction();
@@ -48,7 +75,7 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
             }
         }
 
-        private async Task<IEnumerable<Models.Transaction.Transaction>> ValidateTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions)
+        public async Task<IEnumerable<Models.Transaction.Transaction>> ValidateTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions)
         {
             DateOnly? earliestDate = transactions.MinBy(e => e.OperationDate)?.OperationDate;
             DateOnly? latestDate = transactions.MaxBy(e => e.OperationDate)?.OperationDate;
@@ -64,7 +91,7 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
                 var transactionsFromGivenPeriod = await database.Transactions.Where(expense => expense.OperationDate >= earliestDate && expense.OperationDate <= latestDate)
                                                                      .Select(e => Transaction.ConvertToTransactionDTO(e))
                                                                      .ToListAsync();
-
+                //todo
                 return transactions.Where(e => transactionsFromGivenPeriod.All(ep => !ep.CompareTransactionsWithTheSameDate(e)));
             }
         }

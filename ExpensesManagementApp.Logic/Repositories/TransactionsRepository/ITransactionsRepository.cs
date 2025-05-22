@@ -6,8 +6,10 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
     {
         Task<Models.Transaction.Transaction> GetTransactionAsync(Guid id);
         Task<IEnumerable<Models.Transaction.Transaction>> GetAllTransactionsAsync();
+        Task<IEnumerable<Models.Transaction.Transaction>> GetSpecificTransactionsAsync(Models.Transaction.ITransactionFiltr transactionFiltr);
         Task AddTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions);
         Task AddTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions, IDbContextTransaction dbContextTransaction);
+        Task<IEnumerable<Models.Transaction.Transaction>> ValidateTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions);
         Task<bool> DeleteTransactionsAsync(Guid id);
         Task<Models.Transaction.TransactionGroup> AssignTransactionsToGroup(Models.Transaction.TransactionGroup transactionGroup);
         Task<IEnumerable<Models.Transaction.TransactionGroup>> GetTransactionGroupsAsync(IEnumerable<Guid?> ids);

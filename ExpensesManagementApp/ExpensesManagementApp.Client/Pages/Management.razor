@@ -4,29 +4,97 @@
 @using Models.Statistics
 @using Services;
 @using ExpensesManagementApp.Client.Services.StatisticsService;
+@using ExpensesManagementApp.Client.Services.TransactionService;
 @inject IStatisticsService statisticsService
+@inject ITransactionService transactionService
 
 <PageTitle>Management</PageTitle>
 
 <MudPaper Class="mt-5 pa-5">
     <MudGrid>
-        <MudItem md="3" xs="12">
-            <MudTextField T="string">@DateTime.Now.Month.ToString()</MudTextField>
+
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.Sum.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.Average))" />
         </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.IncomeSum.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.IncomeSum))" />
+        </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.ExpensesSum.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.ExpensesSum))" />
+        </MudItem>
+
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.Average.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.Average))" />
+        </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.IncomeAverage.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.IncomeAverage))" />
+        </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.ExpensesAverage.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.ExpensesAverage))" />
+        </MudItem>
+
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.Median.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.Median))" />
+        </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.IncomeMedian.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.IncomeMedian))" />
+        </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.ExpensesMedian.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.ExpensesMedian))" />
+        </MudItem>
+
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.Dominant.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.Dominant))" />
+        </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.IncomeDominant.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.IncomeDominant))" />
+        </MudItem>
+        <MudItem md="2" xs="12">
+            <MudTextField T="string" Text="@_statistics.ExpensesDominant.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.ExpensesDominant))" />
+        </MudItem>
+
+        <MudItem md="12" xs="12" Class="pa-10">
+            <MudChart Class="pa-10" ChartType="ChartType.Bar" ChartSeries="_series" @bind-SelectedIndex="_customChartSettings.Index" XAxisLabels="_customChartSettings.ChooseXAxisLabels(_statistics.Range, transactionFiltr)" ChartOptions="_chartOptions" />
+        </MudItem>
+
     </MudGrid>
 </MudPaper>
 
 @code {
 
-    private Statistics _statistics { get; set; } = new Statistics(@default: true);
+    //private IEnumerable<Models.Transaction.ITransaction> _transactions { get; set; } = [];
+    private Models.Transaction.TransactionFiltr transactionFiltr { get; set; } = new Models.Transaction.TransactionFiltr();
+    //private double[] _chartValues => _transactions.Select(t => t.Amount).ToArray();
+
+    private StatisticsPackage? _statisticsPackage { get; set; }
+    private Statistics _statistics => _statisticsPackage?.Statistics ?? new Statistics();
+    //private Statistics _statistics { get; set; } = new Statistics();
+    private Models.Statistics.CustomChartSettings _customChartSettings { get; set; } = new Models.Statistics.CustomChartSettings();
+    private MudBlazor.ChartOptions _chartOptions = new MudBlazor.ChartOptions
+    {
+        ShowLabels = true,
+        ShowLegend = true,
+        ShowToolTips = true,
+        YAxisTicks = 1,
+        YAxisLabelPosition = YAxisLabelPosition.Left
+    };
+    private List<ChartSeries> _series = [];
 
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        var response = await statisticsService.InitializeStatisticsAsync();
+        var responseStatistics = await statisticsService.GetStatisticsPackageAsync(transactionFiltr);
 
-        if (response.Data != null)
-            _statistics = response.Data;
+        if (responseStatistics.Data != null)
+        {
+            _statisticsPackage = responseStatistics.Data;
+
+            _series = new List<ChartSeries>()
+            {
+                new ChartSeries() { Name = "Income", Data = _statisticsPackage.TransactionsChartSeries?.Income.Select(i => i/1000).ToArray() ?? [] },
+                new ChartSeries() { Name = "Expenses", Data = _statisticsPackage.TransactionsChartSeries?.Expenses.Select(e => -e/1000).ToArray() ?? [] }
+            };
+        }
     }
 }

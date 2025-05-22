@@ -2,12 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ExpensesManagementApp.Models.CustomExceptions;
-using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
 using ExpensesManagementApp.Models.File;
 
 namespace ExpensesManagementApp.Logic.Repositories.FileRepository
 {
-    public partial class FileRepository(ApplicationDbContext database, ILogger<FileRepository> logger, ITransactionsRepository transactionsRepository) : IFileRepository
+    public partial class FileRepository(ApplicationDbContext database, ILogger<FileRepository> logger, TransactionsRepository.ITransactionsRepository transactionsRepository) : IFileRepository
     {
         public async Task<Models.File.File?> GetFileAsync(Guid id)
         {
@@ -48,6 +47,8 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
                 }
 
                 file.FileId = file.FileId == Guid.Empty ? Guid.NewGuid() : file.FileId;
+
+                file.Transactions = await transactionsRepository.ValidateTransactionsAsync(file.Transactions);
 
                 var dbFile = Database.DbModels.File.ConvertToDbFile(file);
 

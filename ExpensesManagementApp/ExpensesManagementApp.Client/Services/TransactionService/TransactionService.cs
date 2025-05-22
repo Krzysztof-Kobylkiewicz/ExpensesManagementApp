@@ -35,6 +35,30 @@ namespace ExpensesManagementApp.Client.Services.TransactionService
             }
         }
 
+        public async Task<HttpResult<IEnumerable<Transaction>>> GetSpecificTransactionsAsync(ITransactionFiltr transactionFiltr)
+        {
+            using var _httpClient = _httpClientFactory.CreateClient("WebAPI");
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync<ITransactionFiltr>("/api/v1/transactions/get/filter", transactionFiltr);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<HttpResult<IEnumerable<Transaction>>>()
+                        ?? new HttpResult<IEnumerable<Transaction>>("No data found.", 404);
+                }
+                else
+                {
+                    return new HttpResult<IEnumerable<Transaction>>(response?.RequestMessage?.ToString(), (int?)response?.StatusCode);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[{0D}] An error has occured while attempt to get all transactions through the API: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<IEnumerable<Transaction>>();
+            }
+        }
+
         public async Task<HttpResult<bool>> DeleteTransactionAsync(Guid id)
         {
             using var _httpClient = _httpClientFactory.CreateClient("WebAPI");

@@ -33,6 +33,26 @@ namespace ExpensesManagementApp.Services
             }
         }
 
+        public async Task<HttpResult<IEnumerable<Transaction>>> GetSpecificTransactionsAsync(ITransactionFiltr transactionFiltr)
+        {
+            try
+            {
+                var transactions = await _transactionRepository.GetSpecificTransactionsAsync(transactionFiltr);
+
+                return new HttpResult<IEnumerable<Transaction>>(transactions);
+            }
+            catch (ExpensesManagementAppDbException ex)
+            {
+                _logger.LogError(ex, "[{0D}] TransactionService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<IEnumerable<Transaction>>(ex.Message, ex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[{0D}] TransactionService threw an Exception: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<IEnumerable<Transaction>>();
+            }
+        }
+
         public async Task<HttpResult<bool>> DeleteTransactionAsync(Guid id)
         {
             try
