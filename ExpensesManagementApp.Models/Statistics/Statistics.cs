@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Statistics
 {
-    public class Statistics
+    public class Statistics : ModelCore
     {
         public Statistics()
         {
@@ -23,7 +24,6 @@ namespace ExpensesManagementApp.Models.Statistics
             ExpensesDominant = 0;
         }
 
-        public Guid Id { get; set; }
         [Display(Name = "Sum")]
         public double? Sum { get; set; }
 

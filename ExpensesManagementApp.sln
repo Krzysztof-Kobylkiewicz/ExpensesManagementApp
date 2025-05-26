@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpensesManagementApp.Model
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExpensesManagementApp.Logic", "ExpensesManagementApp.Logic\ExpensesManagementApp.Logic.csproj", "{AA0F8563-BC3D-47ED-9322-EF634F7BA019}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{6EF463A9-752F-4AAA-8393-4AAD40294793}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{AA0F8563-BC3D-47ED-9322-EF634F7BA019}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA0F8563-BC3D-47ED-9322-EF634F7BA019}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA0F8563-BC3D-47ED-9322-EF634F7BA019}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EF463A9-752F-4AAA-8393-4AAD40294793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EF463A9-752F-4AAA-8393-4AAD40294793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EF463A9-752F-4AAA-8393-4AAD40294793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EF463A9-752F-4AAA-8393-4AAD40294793}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

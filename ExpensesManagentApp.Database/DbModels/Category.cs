@@ -12,7 +12,7 @@
         {
             return new Category
             {
-                Id = category.CategoryId,
+                Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 Code = category.Code
@@ -23,7 +23,7 @@
         {
             return new Models.Category.Category
             {
-                CategoryId = category.Id,
+                Id = category.Id,
                 Name = category.Name,
                 Description = category.Description,
                 Code = category.Code

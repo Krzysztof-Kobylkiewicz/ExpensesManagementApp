@@ -16,7 +16,7 @@ namespace ExpensesManagementApp.Database.DbModels
 
             return new File
             {
-                Id = file.FileId,
+                Id = file.Id,
                 FileName = file.FileName,
                 FileSize = file.FileSize,
                 BankType = file.BankType.Value,
@@ -28,7 +28,7 @@ namespace ExpensesManagementApp.Database.DbModels
         {
             return new Models.File.File
             {
-                FileId = file.Id,
+                Id = file.Id,
                 FileName = file.FileName,
                 FileSize = file.FileSize,
                 BankType = file.BankType,

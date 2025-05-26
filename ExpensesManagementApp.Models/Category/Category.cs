@@ -1,18 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Category
 {
-    public class Category
+    public class Category : ModelCore
     {
-        public Guid CategoryId { get; set; }
-
-        [Display(Name = "Name")]
+        [Display(Name = "Name"), Required(ErrorMessage = RequiredMessage)]
         public string? Name { get; set; }
 
-        [Display(Name = "Description")]
+        [Display(Name = "Description"), Required(ErrorMessage = RequiredMessage)]
         public string? Description { get; set; }
 
-        [Display(Name = "Code")]
+        [Display(Name = "Code"), Required(ErrorMessage = RequiredMessage), MaxLength(3, ErrorMessage = MaxLengthMessage)]
         public string? Code { get; set; }
     }
 }

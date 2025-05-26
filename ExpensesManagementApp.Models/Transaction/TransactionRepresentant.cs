@@ -1,20 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Transaction
 {
-    public class TransactionRepresentant : ITransaction
+    public partial class TransactionRepresentant : ModelCore, ITransaction
     {
         public TransactionRepresentant() { }
 
-        public Guid TransactionId { get; set; }
-
-        [Required, Display(Name = "Operation date")]
+        [Display(Name = "Operation date"), Required(ErrorMessage = RequiredMessage)]
         public DateOnly OperationDate { get; set; }
 
-        [Required, Display(Name = "Accounting date")]
+        [Display(Name = "Accounting date"), Required(ErrorMessage = RequiredMessage), AccountingDateValidation]
         public DateOnly AccountingDate { get; set; }
 
-        [Required, DataType(DataType.Currency), Display(Name = "Amount")]
+        [Display(Name = "Amount"), Required(ErrorMessage = RequiredMessage), DataType(DataType.Currency)]
         public double Amount { get; set; }
 
         [Display(Name = "Operation title")]

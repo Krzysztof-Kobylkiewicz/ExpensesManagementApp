@@ -126,7 +126,7 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
             using var _dbTransaction = database.Database.BeginTransaction();
             try
             {
-                var transactionsToUpdate = await database.Transactions.Where(db_t => transactionGroup.Transactions.Select(t => t.TransactionId).Contains(db_t.Id)).ToListAsync();
+                var transactionsToUpdate = await database.Transactions.Where(db_t => transactionGroup.Transactions.Select(t => t.Id).Contains(db_t.Id)).ToListAsync();
 
                 transactionGroup.TransactionGroupSum = Math.Round(transactionGroup.Transactions.Select(t => t.Amount).Sum(), 2);
                 transactionGroup.TransactionGroupExpensesSum = Math.Round(transactionGroup.Transactions.Where(t => t.Amount < 0).Select(t => t.Amount).Sum(), 2);
@@ -138,7 +138,7 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
 
                 transactionGroup.Representant = new Models.Transaction.TransactionRepresentant
                 {
-                    TransactionId = Guid.NewGuid(),
+                    Id = Guid.NewGuid(),
                     AccountingDate = latestTransactionInGroup?.AccountingDate ??
                         throw new ArgumentNullException(nameof(transactionGroup), "AccountingDate cannot be null."),
                     OperationDate = latestTransactionInGroup?.OperationDate ?? 

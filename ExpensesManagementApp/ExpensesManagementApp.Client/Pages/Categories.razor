@@ -7,10 +7,10 @@
     <MudExpansionPanel Text="Add category" Expanded="true">
         <MudGrid>
             <MudItem md="3" xs="12">
-                <MudTextField T="string" @bind-Value="_category.Name" Label="@DisplayHelper.DisplayName(() => _category.Name)"/>
+                <MudTextField T="string" @bind-Value="_category.Name" Label="@DisplayHelper.DisplayName(() => _category.Name)" For="@(() => _category.Name)" />
             </MudItem>
             <MudItem md="3" xs="12">
-                <MudTextField T="string" @bind-Value="_category.Code" Label="@DisplayHelper.DisplayName(() => _category.Code)" />
+                <MudTextField T="string" @bind-Value="_category.Code" Label="@DisplayHelper.DisplayName(() => _category.Code)" For="@(() => _category.Code)" />
             </MudItem>
             <MudItem md="3" xs="12">
                 <MudTooltip Text="Add category">
@@ -18,7 +18,7 @@
                 </MudTooltip>
             </MudItem>
             <MudItem md="12" xs="12">
-                <MudTextField T="string" @bind-Value="_category.Description" Label="@DisplayHelper.DisplayName(() => _category.Description)" />
+                <MudTextField T="string" @bind-Value="_category.Description" Label="@DisplayHelper.DisplayName(() => _category.Description)" For="@(() => _category.Description)" />
             </MudItem>
         </MudGrid>
     </MudExpansionPanel>
@@ -39,13 +39,13 @@
                     {
                         <MudStack Row=true AlignItems="AlignItems.End" Justify="Justify.FlexEnd">
                             <MudTooltip Text="Delete category">
-                                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Rounded.Close" OnClick="async () => await DeleteCategoryAsync(category.CategoryId)" />
+                                <MudIconButton Size="Size.Small" Icon="@Icons.Material.Rounded.Close" OnClick="async () => await DeleteCategoryAsync(category.Id)" />
                             </MudTooltip>
                         </MudStack>
                     }
                     <MudGrid>
                         <MudItem md="6" xs="12">
-                            <MudTextField Disabled="!_edition" Value="category.Name" Label="@DisplayHelper.DisplayName(() => category.Name)"/>
+                            <MudTextField Disabled="!_edition" Value="category.Name" Label="@DisplayHelper.DisplayName(() => category.Name)" />
                         </MudItem>
                         <MudItem md="6" xs="12">
                             <MudTextField Disabled="!_edition" Value="category.Code" Label="@DisplayHelper.DisplayName(() => category.Code)" />
@@ -86,6 +86,9 @@
     private async Task UploadCategoryAsync()
     {
         if (_category is null)
+            return;
+
+        if (!_category.IsValid())
             return;
 
         _httpResultNewCategory = await categoryService.UploadCategoryAsync(_category);

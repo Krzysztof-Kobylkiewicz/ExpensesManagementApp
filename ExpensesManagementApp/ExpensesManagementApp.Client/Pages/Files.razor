@@ -29,8 +29,8 @@
                     <MudTd>@context.Transactions.Count()</MudTd>
                     <MudTd>
                         <MudStack Row="true">
-                            <MudIconButton Icon="@Icons.Material.Rounded.Search" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}"))"></MudIconButton>
-                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.FileId}?edit=1"))"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.Rounded.Search" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.Id}"))"></MudIconButton>
+                            <MudIconButton Icon="@Icons.Material.Rounded.Edit" Variant="Variant.Outlined" OnClick="@(() => navigationManager.NavigateTo($"/file/{context.Id}?edit=1"))"></MudIconButton>
                         </MudStack>
                     </MudTd>
                 </RowTemplate>

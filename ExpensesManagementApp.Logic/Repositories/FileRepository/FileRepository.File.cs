@@ -46,7 +46,7 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
                     throw new ExpensesManagementAppDbException("This file has been already uploaded.", 409);
                 }
 
-                file.FileId = file.FileId == Guid.Empty ? Guid.NewGuid() : file.FileId;
+                file.Id = file.Id == Guid.Empty ? Guid.NewGuid() : file.Id;
 
                 file.Transactions = await transactionsRepository.ValidateTransactionsAsync(file.Transactions);
 
@@ -70,7 +70,7 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             using var transaction = database.Database.BeginTransaction();
             try
             {
-                var fileToUpdate = await database.Files.FirstOrDefaultAsync(f => f.Id == file.FileId) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
+                var fileToUpdate = await database.Files.FirstOrDefaultAsync(f => f.Id == file.Id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
 
                 fileToUpdate.UpdateFile(file);
 

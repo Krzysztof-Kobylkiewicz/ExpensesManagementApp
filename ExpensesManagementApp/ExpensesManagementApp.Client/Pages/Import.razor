@@ -20,11 +20,11 @@
                 <MudItem md="6" xs="12">
                     <MudStack Row="true" Justify="Justify.FlexStart">
                         <MudButton OnClick="async () => await (_fileUploadComponent?.OpenFilePickerAsync() ?? Task.CompletedTask)" Size="Size.Small" Color="Color.Dark" Variant="Variant.Filled">Open file picker</MudButton>
-                        <MudButton OnClick="UploadFileAsync" Disabled="!file.BankType.HasValue" Size="Size.Small" Color="Color.Dark" Variant="Variant.Filled">Upload file</MudButton>
+                        <MudButton OnClick="UploadFileAsync" Size="Size.Small" Color="Color.Dark" Variant="Variant.Filled">Upload file</MudButton>
                     </MudStack>
                 </MudItem>
                 <MudItem md="6" xs="12">
-                    <MudSelect T="Models.File.BankTypeEnum?" Value="file.BankType" ValueChanged="(bt) => {file.BankType = bt;}" Label="@(DisplayHelper.DisplayName(() => file.BankType))">
+                    <MudSelect T="Models.File.BankTypeEnum?" Value="file.BankType" ValueChanged="(bt) => {file.BankType = bt;}" Label="@(DisplayHelper.DisplayName(() => file.BankType))" For="@(() => file.BankType)">
                         @foreach (var bankType in Enum.GetValues(typeof(Models.File.BankTypeEnum)))
                         {
                             var _bankType = (Models.File.BankTypeEnum)bankType;
@@ -45,7 +45,7 @@
         </MudItem>
         <MudItem md="6" xs="12">
             <MudFileUpload T="IBrowserFile" @ref="_fileUploadComponent" OnFilesChanged="OnFilesUploadedAsync" Accept=".csv, .txt"
-                           InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0" tabindex="-1">
+            InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10" InputStyle="opacity:0" tabindex="-1">
             </MudFileUpload>
         </MudItem>
     </MudGrid>
@@ -124,9 +124,9 @@
 
     private async Task UploadFileAsync()
     {
-        if (!file.IsUploadingAllowed() || !isFileUploaded)
+        if (!file.IsValid() || !isFileUploaded)
         {
-            await dialogService.ShowMessageBox("Warning", "File uploading is not possible.");
+            await dialogService.ShowMessageBox("Warning", markupMessage: file.GetValidationResultErrorMarkupMessage());
             return;
         } 
 

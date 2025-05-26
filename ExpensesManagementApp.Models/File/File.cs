@@ -1,39 +1,23 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.File
 {
-    public class File
+    public partial class File : ModelCore
     {
         public File() { }
 
-        [Display(Name = "File ID")]
-        public Guid FileId { get; set; }
-
-        [Display(Name = "File name")]
+        [Display(Name = "File name"), Required(ErrorMessage = RequiredMessage)]
         public string? FileName { get; set; }
 
-        [Display(Name = "File size")]
+        [Display(Name = "File size"), Required(ErrorMessage = RequiredMessage)]
         public long? FileSize { get; set; }
 
-        [Display(Name = "Transactions")]
+        [Display(Name = "Transactions"), TransactionsValidation]
         public IEnumerable<Transaction.Transaction> Transactions { get; set; } = [];
 
-        [Display(Name = "Bank type"), Required]
+        [Display(Name = "Bank type"), Required(ErrorMessage = RequiredMessage)]
         public BankTypeEnum? BankType { get; set; }
-
-        public bool IsUploadingAllowed()
-        {
-            if (string.IsNullOrEmpty(FileName))
-                return false;
-
-            if (FileSize == 0)
-                return false;
-
-            if (BankType == null)
-                return false;
-
-            return true;
-        }
 
         public static string BankTypeText(BankTypeEnum bankType)
         {
@@ -54,7 +38,7 @@ namespace ExpensesManagementApp.Models.File
         {
             return expenses.Select(e => new Transaction.Transaction
             {
-                TransactionId = e.TransactionId,
+                Id = e.Id,
                 AccountingDate = e.AccountingDate,
                 OperationDate = e.OperationDate,
                 Amount = e.Amount,

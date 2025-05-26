@@ -30,7 +30,7 @@ namespace ExpensesManagementApp.Database.DbModels
         {
             return new Transaction
             {
-                Id = transaction.TransactionId,
+                Id = transaction.Id,
                 OperationDate = transaction.OperationDate,
                 AccountingDate = transaction.AccountingDate,
                 Amount = transaction.Amount,
@@ -46,7 +46,7 @@ namespace ExpensesManagementApp.Database.DbModels
         {
             return new Models.Transaction.Transaction
             {
-                TransactionId = transaction.Id,
+                Id = transaction.Id,
                 OperationDate = transaction.OperationDate,
                 AccountingDate = transaction.AccountingDate,
                 Amount = transaction.Amount,
