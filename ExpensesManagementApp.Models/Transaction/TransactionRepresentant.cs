@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Transaction
 {
-    public partial class TransactionRepresentant : ModelCore, ITransaction
+    public partial class TransactionRepresentant : ModelCore<Guid>, ITransaction
     {
         public TransactionRepresentant() { }
 

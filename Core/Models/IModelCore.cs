@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-
-namespace Core.Models
+﻿namespace Core.Models
 {
-    public interface IModelCore
+    public interface IModelCore<Key> where Key : IEquatable<Key>
     {
-        public Guid Id { get; set; }
+        public Key Id { get; set; }
     }
 }

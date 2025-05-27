@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.File
 {
-    public partial class File : ModelCore
+    public partial class File : ModelCore<Guid>
     {
         public File() { }
 

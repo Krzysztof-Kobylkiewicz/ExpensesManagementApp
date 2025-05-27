@@ -1,7 +1,7 @@
 ﻿namespace Core.Models
 {
-    public abstract class ModelCore : ModelValidation, IModelCore
+    public abstract class ModelCore<Key> : ModelValidation<Key>, IModelCore<Key> where Key : IEquatable<Key>
     {
-        public Guid Id { get; set; } = Guid.Empty;
+        public Key Id { get; set; } = default!;
     }
 }
