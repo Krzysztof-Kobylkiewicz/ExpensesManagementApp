@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Components;
+using System.ComponentModel.DataAnnotations;
 
 namespace Core.Models
 {
@@ -29,5 +30,8 @@ namespace Core.Models
                 return validationResults;
             }
         }
+
+        public string GetValidationResultErrorMessages() => string.Join(" ", this.ValidationResult());
+        public MarkupString GetValidationResultErrorMarkupMessage() => new MarkupString(string.Join("<br />", this.ValidationResult()));
     }
 }
