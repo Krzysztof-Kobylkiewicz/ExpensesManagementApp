@@ -1,8 +1,9 @@
-﻿using ExpensesManagementApp.Models.File;
+﻿using Core.Entities;
+using ExpensesManagementApp.Models.File;
 
 namespace ExpensesManagementApp.Database.DbModels
 {
-    public class File : DbModel
+    public class File : Entity<Guid>
     {
         public string? FileName { get; set; }
         public long? FileSize { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace ExpensesManagementApp.Database.DbModels
+﻿using Core.Entities;
+
+namespace ExpensesManagementApp.Database.DbModels
 {
-    public class Category : DbModel
+    public class Category : Entity<Guid>
     {
         public string? Name { get; set; }
         public string? Description { get; set; }

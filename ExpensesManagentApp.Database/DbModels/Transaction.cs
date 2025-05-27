@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Database.DbModels
 {
-    public class Transaction : DbModel
+    public class Transaction : Entity<Guid>
     {
         public DateOnly OperationDate { get; set; }
         public DateOnly AccountingDate { get; set; }

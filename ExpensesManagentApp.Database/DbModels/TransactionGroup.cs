@@ -1,6 +1,8 @@
-﻿namespace ExpensesManagementApp.Database.DbModels
+﻿using Core.Entities;
+
+namespace ExpensesManagementApp.Database.DbModels
 {
-    public class TransactionGroup : DbModel
+    public class TransactionGroup : Entity<Guid>
     {
         public TransactionGroup() { }
 
