@@ -24,7 +24,7 @@ namespace Core.Models
 
                 return validationResults;
             }
-            catch (Exception ex)
+            catch
             {
                 validationResults.Add(new ValidationResult("Unhandeled error during validation"));
                 return validationResults;
@@ -32,6 +32,6 @@ namespace Core.Models
         }
 
         public string GetValidationResultErrorMessages() => string.Join(" ", this.ValidationResult());
-        public MarkupString GetValidationResultErrorMarkupMessage() => new MarkupString(string.Join("<br />", this.ValidationResult()));
+        public MarkupString GetValidationResultErrorMarkupMessage() => new(string.Join("<br />", this.ValidationResult()));
     }
 }

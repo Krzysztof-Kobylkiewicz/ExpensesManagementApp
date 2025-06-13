@@ -7,7 +7,7 @@ namespace ExpensesManagementApp.Client.Services.StatisticsService
     public interface IStatisticsService
     {
         Task<HttpResult<Statistics?>> InitializeStatisticsAsync();
-        Task<HttpResult<TransactionsChartSeries>> GetChartSeriesAsync(TransactionFiltr transactionFiltr);
-        Task<HttpResult<StatisticsPackage>> GetStatisticsPackageAsync(TransactionFiltr transactionFiltr);
+        Task<HttpResult<TransactionsChartSeries>> GetChartSeriesAsync(TransactionFilter transactionFiltr);
+        Task<HttpResult<StatisticsPackage>> GetStatisticsPackageAsync(TransactionFilter transactionFiltr);
     }
 }

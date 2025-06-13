@@ -4,6 +4,7 @@ using ExpensesManagementApp.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExpensesManagementApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250611165334_EntityCore")]
+    partial class EntityCore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -102,9 +105,6 @@ namespace ExpensesManagementApp.Migrations
                     b.Property<string>("IpAddress")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Login")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -125,7 +125,7 @@ namespace ExpensesManagementApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("BankType")
+                    b.Property<int>("BankType")
                         .HasColumnType("int");
 
                     b.Property<string>("FileName")
@@ -135,9 +135,6 @@ namespace ExpensesManagementApp.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Login")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdateDate")
@@ -170,9 +167,6 @@ namespace ExpensesManagementApp.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Login")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("OperationDate")
@@ -223,9 +217,6 @@ namespace ExpensesManagementApp.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("JsonGroupRepresentant")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Login")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("TransactionGroupExpensesSum")

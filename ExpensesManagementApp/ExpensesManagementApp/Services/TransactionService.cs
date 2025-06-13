@@ -33,11 +33,11 @@ namespace ExpensesManagementApp.Services
             }
         }
 
-        public async Task<HttpResult<IEnumerable<Transaction>>> GetSpecificTransactionsAsync(ITransactionFiltr transactionFiltr)
+        public async Task<HttpResult<IEnumerable<Transaction>>> GetSpecificTransactionsAsync(TransactionFilter filter)
         {
             try
             {
-                var transactions = await _transactionRepository.GetSpecificTransactionsAsync(transactionFiltr);
+                var transactions = await _transactionRepository.GetSpecificTransactionsAsync(new Database.Filters.DbTransactionFilter(filter));
 
                 return new HttpResult<IEnumerable<Transaction>>(transactions);
             }

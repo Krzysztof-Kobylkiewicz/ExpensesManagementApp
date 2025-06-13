@@ -2,7 +2,7 @@
 
 namespace ExpensesManagementApp.Database.DbModels
 {
-    public class Category : Entity<Guid>
+    public class Category : Entity<Category, Models.Category.Category, Guid>, IConvertable<Category, Models.Category.Category, Guid>
     {
         public string? Name { get; set; }
         public string? Description { get; set; }
@@ -10,26 +10,21 @@ namespace ExpensesManagementApp.Database.DbModels
 
         public ICollection<Transaction>? Transactions { get; set; }
 
-        public static Category ConvertToDbCategory(Models.Category.Category category)
-        {
-            return new Category
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Code = category.Code
-            };
-        }
 
-        public static Models.Category.Category ConvertToCategoryDTO(Category category)
+        public Models.Category.Category ConvertEntityToDTO() => new()
         {
-            return new Models.Category.Category
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                Code = category.Code
-            };
-        }
+            Id = this.Id,
+            Name = this.Name,
+            Description = this.Description,
+            Code = this.Code
+        };
+
+        public static Category ConvertDTOToEntity(Models.Category.Category category) => new()
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Description = category.Description,
+            Code = category.Code
+        };
     }
 }

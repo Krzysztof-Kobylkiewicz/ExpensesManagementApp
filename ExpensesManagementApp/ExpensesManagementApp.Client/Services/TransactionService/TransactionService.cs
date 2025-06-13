@@ -35,12 +35,12 @@ namespace ExpensesManagementApp.Client.Services.TransactionService
             }
         }
 
-        public async Task<HttpResult<IEnumerable<Transaction>>> GetSpecificTransactionsAsync(ITransactionFiltr transactionFiltr)
+        public async Task<HttpResult<IEnumerable<Transaction>>> GetSpecificTransactionsAsync(TransactionFilter filter)
         {
             using var _httpClient = _httpClientFactory.CreateClient("WebAPI");
             try
             {
-                var response = await _httpClient.PostAsJsonAsync<ITransactionFiltr>("/api/v1/transactions/get/filter", transactionFiltr);
+                var response = await _httpClient.PostAsJsonAsync<TransactionFilter>("/api/v1/transactions/get/filter", filter);
 
                 if (response.IsSuccessStatusCode)
                 {

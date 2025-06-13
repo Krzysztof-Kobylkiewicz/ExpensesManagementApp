@@ -8,7 +8,17 @@ namespace ExpensesManagementApp.Client.Services.CategoryService
     {
         public async Task<HttpResult<Category>> GetCategoryAsync(Guid id)
         {
-            throw new NotImplementedException();
+            using var _httpClient = _httpClientFactory.CreateClient("WebAPI");
+            try
+            {
+                return await _httpClient.GetFromJsonAsync<HttpResult<Category>>($"/api/v1/categories/category/{id}")
+                    ?? new HttpResult<Category>("No data found.", 404);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[{0D}] An error has occured while retrieving categories through the API: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<Category>();
+            }
         }
 
         public async Task<HttpResult<IEnumerable<Category>>> GetAllCategoriesAsync()

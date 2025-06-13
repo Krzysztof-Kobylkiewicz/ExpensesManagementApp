@@ -1,4 +1,6 @@
-﻿using ExpensesManagementApp.Client.Services.StatisticsService;
+﻿using Core.Filters;
+using ExpensesManagementApp.Client.Services.StatisticsService;
+using ExpensesManagementApp.Database.Filters;
 using ExpensesManagementApp.Logic.Repositories;
 using ExpensesManagementApp.Models.CustomExceptions;
 using ExpensesManagementApp.Models.HttpResult;
@@ -29,11 +31,11 @@ namespace ExpensesManagementApp.Services
             }
         }
 
-        public async Task<HttpResult<Models.Statistics.TransactionsChartSeries>> GetChartSeriesAsync(TransactionFiltr transactionFiltr)
+        public async Task<HttpResult<Models.Statistics.TransactionsChartSeries>> GetChartSeriesAsync(TransactionFilter filter)
         {
             try
             {
-                var chartSeries = await _statisticsRepository.GetChartSeriesAsync(transactionFiltr);
+                var chartSeries = await _statisticsRepository.GetChartSeriesAsync(new DbTransactionFilter(filter));
                 return new HttpResult<Models.Statistics.TransactionsChartSeries>(chartSeries);
             }
             catch (ExpensesManagementAppDbException ex)
@@ -48,12 +50,12 @@ namespace ExpensesManagementApp.Services
             }
         }
 
-        public async Task<HttpResult<Models.Statistics.StatisticsPackage>> GetStatisticsPackageAsync(TransactionFiltr transactionFiltr)
+        public async Task<HttpResult<Models.Statistics.StatisticsPackage>> GetStatisticsPackageAsync(TransactionFilter filter)
         {
             try
             {
                 var statistics = await _statisticsRepository.InitializeStatisticsAsync();
-                var chartSeries = await _statisticsRepository.GetChartSeriesAsync(transactionFiltr);
+                var chartSeries = await _statisticsRepository.GetChartSeriesAsync(new DbTransactionFilter(filter));
 
                 var statisticsPackage = new StatisticsPackage
                 {

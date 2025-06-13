@@ -7,9 +7,22 @@ namespace ExpensesManagementApp.Services
 {
     public class CategoryService(ICategoriesRepository _categoriesRepository, ILogger<CategoryService> _logger) : ICategoryService
     {
-        public Task<HttpResult<Models.Category.Category>> GetCategoryAsync(Guid id)
+        public async Task<HttpResult<Models.Category.Category>> GetCategoryAsync(Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                return new HttpResult<Models.Category.Category>(await _categoriesRepository.GetCategoryAsync(id));
+            }
+            catch (ExpensesManagementAppDbException ex)
+            {
+                _logger.LogError(ex, "[{0D}] CategoriesService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<Models.Category.Category>(ex.Message, ex.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[{0D}] CategoriesService threw an Exception: {1M}", DateTime.Now, ex.Message);
+                return new HttpResult<Models.Category.Category>();
+            }
         }
 
         public async Task<HttpResult<IEnumerable<Models.Category.Category>>> GetAllCategoriesAsync()

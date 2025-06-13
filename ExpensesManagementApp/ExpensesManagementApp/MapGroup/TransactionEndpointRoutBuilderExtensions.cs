@@ -12,7 +12,7 @@ namespace ExpensesManagementApp.MapGroup
 
             transactionsGroup.MapGet("/get/all", (ITransactionService transactionService) => transactionService.GetAllTransactionsAsync());
 
-            transactionsGroup.MapPost("/get/filter", (ITransactionService transactionService, Models.Transaction.ITransactionFiltr filtr) => transactionService.GetSpecificTransactionsAsync(filtr));
+            transactionsGroup.MapPost("/get/filter", (ITransactionService transactionService, Models.Transaction.TransactionFilter filter) => transactionService.GetSpecificTransactionsAsync(filter));
 
             transactionsGroup.MapDelete("/delete/{id:guid}", (ITransactionService transactionService, Guid id) => transactionService.DeleteTransactionAsync(id));
 

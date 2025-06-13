@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Database.DbModels
 {
-    public class Transaction : Entity<Guid>
+    public class Transaction : Entity<Transaction, Models.Transaction.Transaction, Guid>, IConvertable<Transaction, Models.Transaction.Transaction, Guid>
     {
         public DateOnly OperationDate { get; set; }
         public DateOnly AccountingDate { get; set; }
@@ -27,37 +27,31 @@ namespace ExpensesManagementApp.Database.DbModels
         public Guid? CategoryId { get; set; }
         public Category? Category { get; set; }
 
-        public static Transaction ConvertToDbTransaction(Models.Transaction.Transaction transaction)
+        public Models.Transaction.Transaction ConvertEntityToDTO() => new()
         {
-            return new Transaction
-            {
-                Id = transaction.Id,
-                OperationDate = transaction.OperationDate,
-                AccountingDate = transaction.AccountingDate,
-                Amount = transaction.Amount,
-                Recipient = transaction.Recipient,
-                Sender = transaction.Sender,
-                OperationTitle = transaction.OperationTitle,
-                SenderAccountNumber = transaction.SenderAccountNumber,
-                OperationNumber = transaction.OperationNumber
-            };
-        }
+            Id = this.Id,
+            OperationDate = this.OperationDate,
+            AccountingDate = this.AccountingDate,
+            Amount = this.Amount,
+            Recipient = this.Recipient,
+            Sender = this.Sender,
+            OperationTitle = this.OperationTitle,
+            SenderAccountNumber = this.SenderAccountNumber,
+            OperationNumber = this.OperationNumber
+        };
 
-        public static Models.Transaction.Transaction ConvertToTransactionDTO(Transaction transaction)
+        public static Transaction ConvertDTOToEntity(Models.Transaction.Transaction transaction) => new()
         {
-            return new Models.Transaction.Transaction
-            {
-                Id = transaction.Id,
-                OperationDate = transaction.OperationDate,
-                AccountingDate = transaction.AccountingDate,
-                Amount = transaction.Amount,
-                Recipient = transaction.Recipient,
-                Sender = transaction.Sender,
-                OperationTitle = transaction.OperationTitle,
-                SenderAccountNumber = transaction.SenderAccountNumber,
-                OperationNumber = transaction.OperationNumber,
-                TransactionGroupId = transaction.TransactionGroupId
-            };
-        }
+            Id = transaction.Id,
+            OperationDate = transaction.OperationDate,
+            AccountingDate = transaction.AccountingDate,
+            Amount = transaction.Amount,
+            Recipient = transaction.Recipient,
+            Sender = transaction.Sender,
+            OperationTitle = transaction.OperationTitle,
+            SenderAccountNumber = transaction.SenderAccountNumber,
+            OperationNumber = transaction.OperationNumber,
+            TransactionGroupId = transaction.TransactionGroupId
+        };
     }
 }

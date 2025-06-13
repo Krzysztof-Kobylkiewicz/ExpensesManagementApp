@@ -12,9 +12,9 @@ namespace ExpensesManagementApp.MapGroup
 
             statisticsGroup.MapGet("/initialize", (IStatisticsService statisticsService) => statisticsService.InitializeStatisticsAsync());
 
-            statisticsGroup.MapPost("/chartseries", (IStatisticsService statisticsService, Models.Transaction.TransactionFiltr transactionFiltr) => statisticsService.GetChartSeriesAsync(transactionFiltr));
+            statisticsGroup.MapPost("/chartseries", (IStatisticsService statisticsService, Models.Transaction.TransactionFilter transactionFiltr) => statisticsService.GetChartSeriesAsync(transactionFiltr));
 
-            statisticsGroup.MapPost("/statisticspackage", (IStatisticsService statisticsService, Models.Transaction.TransactionFiltr transactionFiltr) => statisticsService.GetStatisticsPackageAsync(transactionFiltr));
+            statisticsGroup.MapPost("/statisticspackage", (IStatisticsService statisticsService, Models.Transaction.TransactionFilter transactionFiltr) => statisticsService.GetStatisticsPackageAsync(transactionFiltr));
 
             return statisticsGroup;
         }

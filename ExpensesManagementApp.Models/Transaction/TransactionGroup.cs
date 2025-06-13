@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Transaction
 {
-    public class TransactionGroup
+    public class TransactionGroup : ModelCore<Guid>
     {
         public TransactionGroup() 
         {
@@ -15,7 +16,7 @@ namespace ExpensesManagementApp.Models.Transaction
         public string? TransactionGroupName { get; set; }
 
         [Display(Name = "Transactions")]
-        public IList<Transaction> Transactions { get; set; } = [];
+        public IList<Transaction?> Transactions { get; set; } = [];
 
         [Display(Name = "Representant")]
         public TransactionRepresentant? Representant { get; set; }
@@ -31,5 +32,18 @@ namespace ExpensesManagementApp.Models.Transaction
 
         [Display(Name = "Number of group transactions")]
         public int NumberOfTransactionsInGroup { get; set; }
+
+        public void Round(int n = 2)
+        {
+            TransactionGroupSum = Math.Round(Transactions.Select(t => t.Amount).Sum(), n);
+            TransactionGroupExpensesSum = Math.Round(Transactions.Where(t => t.Amount < 0).Select(t => t.Amount).Sum(), n);
+            TransactionGroupIncomeSum = Math.Round(Transactions.Where(t => t.Amount > 0).Select(t => t.Amount).Sum(), n);
+        }
+
+        public int Count()
+        {
+            NumberOfTransactionsInGroup = Transactions.Count;
+            return NumberOfTransactionsInGroup;
+        }
     }
 }

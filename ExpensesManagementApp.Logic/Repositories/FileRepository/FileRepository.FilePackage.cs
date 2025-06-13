@@ -1,4 +1,5 @@
-﻿using ExpensesManagementApp.Models.CustomExceptions;
+﻿using ExpensesManagementApp.Database.DbModels;
+using ExpensesManagementApp.Models.CustomExceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -16,7 +17,7 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             }
             catch (Exception ex)
             {
-                logger.LogError("[{0D}] Error while attempt to get file package: {1M}", DateTime.Now, ex.Message);
+                _logger.LogError("[{0D}] Error while attempt to get file package: {1M}", DateTime.Now, ex.Message);
                 throw;
             }
         }
@@ -38,25 +39,32 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             }
             catch (Exception ex)
             {
-                logger.LogError("[{0D}] Error while attempt to get all file packages: {1M}", DateTime.Now, ex.Message);
+                _logger.LogError("[{0D}] Error while attempt to get all file packages: {1M}", DateTime.Now, ex.Message);
                 throw;
             }
         }
 
         public async Task<bool> DeleteFilePackageAsync(Guid id)
         {
-            using var transaction = database.Database.BeginTransaction();
+            using var transaction = _dbContext.Database.BeginTransaction();
             try
             {
-                var fileToDelete = await database.Files.Include(f => f.Transactions).FirstOrDefaultAsync(f => f.Id == id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
+                var fileToDelete = await GetEntityDTOAsync<Database.DbModels.File, Models.File.File, Guid>(id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404); //await database.Files.Include(f => f.Transactions).FirstOrDefaultAsync(f => f.Id == id) ?? throw new ExpensesManagementAppDbException("No such file was found.", 404);
                 var fileTransactionGroupIds = fileToDelete.Transactions?.Where(t => t.TransactionGroupId.HasValue).Select(t => t.TransactionGroupId) ?? [];
-                var transactionGroupsToDelete = await database.TransactionGroups.Where(tg => fileTransactionGroupIds.Contains(tg.Id)).ToArrayAsync();
+                var transactionGroupsToDelete = await GetEntitiesDTOAsync<TransactionGroup, Models.Transaction.TransactionGroup, Guid>(transactionGroup => transactionGroup.Where(tg => fileTransactionGroupIds.Contains(tg.Id)));
 
-                database.Files.Remove(fileToDelete);
-                await database.SaveChangesAsync();
 
-                database.TransactionGroups.RemoveRange(transactionGroupsToDelete);
-                await database.SaveChangesAsync();
+                await DeleteEntityAsync<Database.DbModels.File, Models.File.File, Guid>(id);
+
+                foreach (var transactionGroup in transactionGroupsToDelete)
+                {
+                    if (transactionGroup != null)
+                    {
+                        await transactionsRepository.DeleteTransactionGroupAsync(transactionGroup.Id);
+                    }
+                }
+
+                await SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
@@ -64,7 +72,7 @@ namespace ExpensesManagementApp.Logic.Repositories.FileRepository
             }
             catch (Exception ex)
             {
-                logger.LogError("[{0D}] Error while attempt to remove file: {1M}", DateTime.Now, ex.Message);
+                _logger.LogError("[{0D}] Error while attempt to remove file: {1M}", DateTime.Now, ex.Message);
                 await transaction.RollbackAsync();
                 return false;
             }

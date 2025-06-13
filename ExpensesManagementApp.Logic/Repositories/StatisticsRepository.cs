@@ -1,4 +1,5 @@
 ﻿using ExpensesManagementApp.Database;
+using ExpensesManagementApp.Database.Filters;
 using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
 using ExpensesManagementApp.Models.Statistics;
 using Microsoft.EntityFrameworkCore;
@@ -36,9 +37,9 @@ namespace ExpensesManagementApp.Logic.Repositories
             }
         }
 
-        public async Task<Models.Statistics.TransactionsChartSeries> GetChartSeriesAsync(Models.Transaction.ITransactionFiltr transactionFiltr)
+        public async Task<Models.Statistics.TransactionsChartSeries> GetChartSeriesAsync(DbTransactionFilter filter)
         {
-            var transactions = await transactionsRepository.GetSpecificTransactionsAsync(transactionFiltr);
+            var transactions = await transactionsRepository.GetSpecificTransactionsAsync(filter);
 
             var groupedTransactions = transactions.GroupBy(t => t.OperationDate.Year).Select(yeargroup => new
             {

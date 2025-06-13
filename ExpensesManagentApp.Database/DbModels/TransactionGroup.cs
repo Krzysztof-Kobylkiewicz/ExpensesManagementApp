@@ -2,7 +2,7 @@
 
 namespace ExpensesManagementApp.Database.DbModels
 {
-    public class TransactionGroup : Entity<Guid>
+    public class TransactionGroup : Entity<TransactionGroup, Models.Transaction.TransactionGroup, Guid>, IConvertable<TransactionGroup, Models.Transaction.TransactionGroup, Guid>
     {
         public TransactionGroup() { }
 
@@ -14,32 +14,26 @@ namespace ExpensesManagementApp.Database.DbModels
 
         public ICollection<Transaction>? Transactions { get; set; }
 
-        public static TransactionGroup ConvertToDbTransactionGroup(Models.Transaction.TransactionGroup transactionGroup)
+        public Models.Transaction.TransactionGroup ConvertEntityToDTO() => new()
         {
-            return new TransactionGroup
-            {
-                Id = transactionGroup.TransactionGroupId,
-                TransactionGroupName = transactionGroup.TransactionGroupName,
-                TransactionGroupSum = transactionGroup.TransactionGroupSum,
-                TransactionGroupExpensesSum = transactionGroup.TransactionGroupExpensesSum.HasValue ? transactionGroup.TransactionGroupExpensesSum.Value : 0,
-                TransactionGroupIncomeSum = transactionGroup.TransactionGroupIncomeSum.HasValue ? transactionGroup.TransactionGroupIncomeSum.Value : 0,
-                JsonGroupRepresentant = Newtonsoft.Json.JsonConvert.SerializeObject(transactionGroup.Representant)
-            };
-        }
+            TransactionGroupId = this.Id,
+            TransactionGroupName = this.TransactionGroupName,
+            TransactionGroupSum = this.TransactionGroupSum,
+            TransactionGroupExpensesSum = this.TransactionGroupExpensesSum,
+            TransactionGroupIncomeSum = this.TransactionGroupIncomeSum,
+            NumberOfTransactionsInGroup = this?.Transactions?.Count() ?? 0,
+            Transactions = this?.Transactions?.Select(t => t.ConvertEntityToDTO()).ToList() ?? [],
+            Representant = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Transaction.TransactionRepresentant?>(this?.JsonGroupRepresentant ?? string.Empty),
+        };
 
-        public static Models.Transaction.TransactionGroup ConvertToTransactionGroupDTO(TransactionGroup transactionGroup)
+        public static TransactionGroup ConvertDTOToEntity(Models.Transaction.TransactionGroup transactionGroup) => new()
         {
-            return new Models.Transaction.TransactionGroup
-            {
-                TransactionGroupId = transactionGroup.Id,
-                TransactionGroupName = transactionGroup.TransactionGroupName,
-                TransactionGroupSum = transactionGroup.TransactionGroupSum,
-                TransactionGroupExpensesSum = transactionGroup.TransactionGroupExpensesSum,
-                TransactionGroupIncomeSum = transactionGroup.TransactionGroupIncomeSum,
-                NumberOfTransactionsInGroup = transactionGroup?.Transactions?.Count() ?? 0,
-                Transactions = transactionGroup?.Transactions?.Select(t => Transaction.ConvertToTransactionDTO(t)).ToList() ?? [],
-                Representant = Newtonsoft.Json.JsonConvert.DeserializeObject<Models.Transaction.TransactionRepresentant?>(transactionGroup?.JsonGroupRepresentant ?? string.Empty),
-            };
-        }
+            Id = transactionGroup.TransactionGroupId,
+            TransactionGroupName = transactionGroup.TransactionGroupName,
+            TransactionGroupSum = transactionGroup.TransactionGroupSum,
+            TransactionGroupExpensesSum = transactionGroup.TransactionGroupExpensesSum.HasValue ? transactionGroup.TransactionGroupExpensesSum.Value : 0,
+            TransactionGroupIncomeSum = transactionGroup.TransactionGroupIncomeSum.HasValue ? transactionGroup.TransactionGroupIncomeSum.Value : 0,
+            JsonGroupRepresentant = Newtonsoft.Json.JsonConvert.SerializeObject(transactionGroup.Representant)
+        };
     }
 }

@@ -17,13 +17,17 @@ namespace ExpensesManagementApp.Models.Statistics
         public int Height { get; set; } = 300;
         public int Width { get; set; } = 500;
 
-        public string[] ChooseXAxisLabels(Models.Statistics.AggregationInterval range, ITransactionFiltr transactionFiltr)
+        public string[] ChooseXAxisLabels(Models.Statistics.AggregationInterval range, TransactionFilter filter)
         {
-            switch (range)
+            if (filter.DateTimeFrom.HasValue && filter.DateTimeTo.HasValue)
             {
-                case AggregationInterval.Monthly: return XAxisLabelsMonths.Skip(transactionFiltr.DateFrom.Month).Take(transactionFiltr.DateTo.Month - transactionFiltr.DateFrom.Month).ToArray();
-                default: throw new NotImplementedException();
+                switch (range)
+                {
+                    case AggregationInterval.Monthly: return XAxisLabelsMonths.Skip(filter.DateTimeFrom.Value.Month).Take(filter.DateTimeTo.Value.Month - filter.DateTimeFrom.Value.Month).ToArray();
+                    default: throw new NotImplementedException();
+                }
             }
+            return [];
         }
     }
 }

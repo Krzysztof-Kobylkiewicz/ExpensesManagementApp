@@ -22,12 +22,12 @@ namespace ExpensesManagementApp.Client.Services.StatisticsService
             }
         }
 
-        public async Task<HttpResult<Models.Statistics.TransactionsChartSeries>> GetChartSeriesAsync(TransactionFiltr transactionFiltr)
+        public async Task<HttpResult<Models.Statistics.TransactionsChartSeries>> GetChartSeriesAsync(TransactionFilter transactionFiltr)
         {
             using var _httpClient = _httpClientFactory.CreateClient("WebAPI");
             try
             {
-                var result = await _httpClient.PostAsJsonAsync<TransactionFiltr>("api/v1/statistics/chartseries", transactionFiltr);
+                var result = await _httpClient.PostAsJsonAsync<TransactionFilter>("api/v1/statistics/chartseries", transactionFiltr);
 
                 if (result.IsSuccessStatusCode)
                 {
@@ -44,12 +44,12 @@ namespace ExpensesManagementApp.Client.Services.StatisticsService
             }
         }
 
-        public async Task<HttpResult<Models.Statistics.StatisticsPackage>> GetStatisticsPackageAsync(TransactionFiltr transactionFiltr)
+        public async Task<HttpResult<Models.Statistics.StatisticsPackage>> GetStatisticsPackageAsync(TransactionFilter transactionFiltr)
         {
             using var _httpClient = _httpClientFactory.CreateClient("WebAPI");
             try
             {
-                var result = await _httpClient.PostAsJsonAsync<TransactionFiltr>("api/v1/statistics/statisticspackage", transactionFiltr);
+                var result = await _httpClient.PostAsJsonAsync<TransactionFilter>("api/v1/statistics/statisticspackage", transactionFiltr);
 
                 if (result.IsSuccessStatusCode)
                 {
