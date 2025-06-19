@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Core.Models
 {
-    public abstract class ModelValidation<Key> : IModelValidation<Key>
+    public abstract class ModelValidation<DTO, Key> : IModelValidation<Key>
     {
         public const string RequiredMessage = "{0} is required.";
         public const string MaxLengthMessage = "{0} max allowed length is {1}.";

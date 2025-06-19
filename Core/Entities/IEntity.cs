@@ -2,7 +2,7 @@
 
 namespace Core.Entities
 {
-    public interface IEntity<E, DTO, Key> where E : Entity<E, DTO, Key> where DTO : IModelCore<Key> where Key : IEquatable<Key>
+    public interface IEntity<E, DTO, Key> where E : Entity<E, DTO, Key> where DTO : IModelCore<DTO, Key> where Key : IEquatable<Key>
     {
         Key Id { get; set; }
         DateTime? UpoloadDate { get; set; }

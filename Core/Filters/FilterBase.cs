@@ -3,7 +3,7 @@ using Core.Models;
 
 namespace Core.Filters
 {
-    public abstract class FilterBase<E, DTO, Key> : IFilterBase, IDbFilterBase<E, DTO, Key> where E : Entity<E, DTO, Key>, IConvertable<E, DTO, Key> where DTO : IModelCore<Key> where Key : IEquatable<Key>
+    public abstract class FilterBase<E, DTO, Key> : IFilterBase, IDbFilterBase<E, DTO, Key> where E : Entity<E, DTO, Key>, IConvertable<E, DTO, Key> where DTO : IModelCore<DTO, Key> where Key : IEquatable<Key>
     {
         public FilterBase() { }
 

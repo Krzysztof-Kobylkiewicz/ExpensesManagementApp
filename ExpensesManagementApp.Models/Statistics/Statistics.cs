@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Statistics
 {
-    public class Statistics : ModelCore<Guid>
+    public class Statistics : ModelCore<Statistics, Guid>
     {
         public Statistics()
         {

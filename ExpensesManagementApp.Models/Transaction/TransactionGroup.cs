@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Transaction
 {
-    public class TransactionGroup : ModelCore<Guid>
+    public class TransactionGroup : ModelCore<TransactionGroup, Guid>
     {
         public TransactionGroup() 
         {

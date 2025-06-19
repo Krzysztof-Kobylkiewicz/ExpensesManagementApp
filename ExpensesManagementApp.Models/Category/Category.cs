@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Category
 {
-    public class Category : ModelCore<Guid>
+    public class Category : ModelCore<Category, Guid>
     {
         [Display(Name = "Name"), Required(ErrorMessage = RequiredMessage)]
         public string? Name { get; set; }
