@@ -138,7 +138,7 @@
         if (_filePackage is null || _filePackage.File is null)
             return;
 
-        var _httpResult = await fileService.DeleteFilePackageAsync(_filePackage.File.FileId);
+        var _httpResult = await fileService.DeleteFilePackageAsync(_filePackage.File.Id);
 
         if (_httpResult == null)
             return;

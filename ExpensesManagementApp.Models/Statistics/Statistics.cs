@@ -1,26 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Statistics
 {
-    public class Statistics
+    public class Statistics : ModelCore<Statistics, Guid>
     {
-        public Statistics() { }
-        public Statistics(bool @default)
+        public Statistics()
         {
-            if (@default)
-            {
-                Sum = 0;
-                Average = 0;
-                Median = 0;
-                Dominant = 0;
-            }
-            else
-            {
-                new Statistics();
-            }
+            Sum = 0;
+            IncomeSum = 0;
+            ExpensesSum = 0;
+
+            Average = 0;
+            IncomeAverage = 0;
+            ExpensesAverage = 0;
+
+            Median = 0;
+            IncomeMedian = 0;
+            ExpensesMedian = 0;
+
+            Dominant = 0;
+            IncomeDominant = 0;
+            ExpensesDominant = 0;
         }
 
-        public Guid Id { get; set; }
         [Display(Name = "Sum")]
         public double? Sum { get; set; }
 
@@ -58,7 +61,7 @@ namespace ExpensesManagementApp.Models.Statistics
         public double? ExpensesDominant { get; set; }
 
         [Display(Name = "Range")]
-        public Range Range { get; set; } = Range.Monthly;
+        public AggregationInterval Range { get; set; } = AggregationInterval.Monthly;
 
         [Display(Name = "Date from")]
         public DateTime? DateFrom { get; set; }
@@ -86,7 +89,7 @@ namespace ExpensesManagementApp.Models.Statistics
         }
     };
 
-    public enum Range
+    public enum AggregationInterval
     {
         Daily,
         Weekly,

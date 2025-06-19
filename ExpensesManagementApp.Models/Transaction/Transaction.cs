@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Core.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Transaction
 {
-    public class Transaction : TransactionRepresentant, ITransaction
+    public class Transaction : TransactionRepresentant, ITransaction, IModelCore<Transaction, Guid>
     {
         public Transaction() : base() { }
 
@@ -44,6 +45,35 @@ namespace ExpensesManagementApp.Models.Transaction
                 return false;
 
             return CompareTransactions(transactionToCompare);
+        }
+
+        public bool Equals(Transaction other)
+        {
+            if (!OperationDate.Equals(other.OperationDate))
+                return false;
+
+            if (!AccountingDate.Equals(other.AccountingDate))
+                return false;
+
+            if (Amount != other.Amount)
+                return false;
+
+            if (OperationTitle?.Equals(other.OperationTitle) == false)
+                return false;
+
+            if (!TransactionGroupId.Equals(other.TransactionGroupId))
+                return false;
+
+            if (Recipient?.Equals(other.Recipient) == false)
+                return false;
+
+            if (Sender?.Equals(other.Sender) == false)
+                return false;
+
+            if (SenderAccountNumber?.Equals(other.SenderAccountNumber) == false)
+                return false;
+
+            return true;
         }
     }
 }

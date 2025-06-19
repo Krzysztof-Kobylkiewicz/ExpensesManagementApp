@@ -13,6 +13,7 @@ using MudBlazor.Services;
 using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
 using ExpensesManagementApp.Client.Services.CategoryService;
 using ExpensesManagementApp.Logic.Repositories.CategoriesRepository;
+using ExpensesManagementApp.Logic.Repositories.TransactionGroupRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +34,7 @@ builder.Services.AddScoped<ICategoryService, ExpensesManagementApp.Services.Cate
 
 builder.Services.AddScoped<IFileRepository, FileRepository>();
 builder.Services.AddScoped<ITransactionsRepository, TransactionsRepository>();
+builder.Services.AddScoped<ITransactionGroupRepository, TransactionGroupRepository>();
 builder.Services.AddScoped<StatisticsRepository>();
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 

@@ -8,6 +8,8 @@ namespace ExpensesManagementApp.MapGroup
         {
             var categoriesGroup = endpoints.MapGroup("api/v1/categories");
 
+            categoriesGroup.MapGet("category/{id:guid}", (ICategoryService categoriesService, Guid id) => categoriesService.GetCategoryAsync(id));
+
             categoriesGroup.MapGet("/all", (ICategoryService categoriesService) => categoriesService.GetAllCategoriesAsync());
 
             categoriesGroup.MapGet("/{serachString}", (ICategoryService categoriesService, string serachString) => categoriesService.GetCategoriesBySearchString(serachString));

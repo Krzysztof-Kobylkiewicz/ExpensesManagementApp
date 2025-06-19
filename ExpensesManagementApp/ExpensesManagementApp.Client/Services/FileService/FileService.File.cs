@@ -64,7 +64,7 @@ namespace ExpensesManagementApp.Client.Services.FileService
             using var _httpClient = _httpClientFactory.CreateClient("WebAPI");
             try
             {
-                var response = await _httpClient.PutAsJsonAsync($"/api/v1/files/update/{file.FileId}", file);
+                var response = await _httpClient.PutAsJsonAsync($"/api/v1/files/update/{file.Id}", file);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -78,7 +78,7 @@ namespace ExpensesManagementApp.Client.Services.FileService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] An error has occured while attempt to update file (GUID: {1ID}) through the API: {2M}", DateTime.Now, file.FileId, ex.Message);
+                _logger.LogError(ex, "[{0D}] An error has occured while attempt to update file (GUID: {1ID}) through the API: {2M}", DateTime.Now, file.Id, ex.Message);
                 return new HttpResult<Models.File.File?>();
             }
         }

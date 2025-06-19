@@ -1,45 +1,37 @@
-﻿using ExpensesManagementApp.Models.File;
+﻿using Core.Entities;
+using ExpensesManagementApp.Models.File;
 
 namespace ExpensesManagementApp.Database.DbModels
 {
-    public class File : DbModel
+    public class File : Entity<File, Models.File.File, Guid>, IConvertable<File, Models.File.File, Guid>
     {
         public string? FileName { get; set; }
         public long? FileSize { get; set; }
-        public BankTypeEnum BankType { get; set; }
+        public BankTypeEnum? BankType { get; set; }
         public ICollection<Transaction>? Transactions { get; set; }
 
-        public static File ConvertToDbFile(Models.File.File file)
+        public Models.File.File ConvertEntityToDTO() => new()
         {
-            if (!file.BankType.HasValue)
-                throw new InvalidOperationException("File must have a bank type assigned");
+            Id = this.Id,
+            FileName = this.FileName,
+            FileSize = this.FileSize,
+            BankType = this.BankType,
+            Transactions = this.Transactions?.Select(t => t.ConvertEntityToDTO()) ?? []
+        };
 
-            return new File
-            {
-                Id = file.FileId,
-                FileName = file.FileName,
-                FileSize = file.FileSize,
-                BankType = file.BankType.Value,
-                Transactions = file.Transactions.Select(t => Transaction.ConvertToDbTransaction(t)).ToList()
-            };
-        }
-
-        public static Models.File.File ConvertToFileDTO(File file)
+        public static File ConvertDTOToEntity(Models.File.File dtoFile) => new()
         {
-            return new Models.File.File
-            {
-                FileId = file.Id,
-                FileName = file.FileName,
-                FileSize = file.FileSize,
-                BankType = file.BankType,
-                Transactions = file?.Transactions?.Select(t => Transaction.ConvertToTransactionDTO(t)).ToList() ?? []
-            };
-        }
+            Id = dtoFile.Id,
+            FileName = dtoFile.FileName,
+            FileSize = dtoFile.FileSize,
+            BankType = dtoFile.BankType,
+            Transactions = dtoFile.Transactions.Select(t => Transaction.ConvertDTOToEntity(t)).ToList()
+        };
 
         public void UpdateFile(Models.File.File file)
         {
             FileName = file.FileName;
-            Transactions = file.Transactions.Select(t => Transaction.ConvertToDbTransaction(t)).ToList() ?? [];
+            Transactions = file.Transactions.Select(t => Transaction.ConvertDTOToEntity(t)).ToList() ?? [];
         }
     }
 }

@@ -226,7 +226,7 @@
         var parameters = new DialogParameters
         {
             ["Edition"] = Edition,
-            ["FileId"] = FilePackage?.File?.FileId,
+            ["FileId"] = FilePackage?.File?.Id,
             [ITransactionParamName] = istransaction ? transaction : FilePackage?.TransactionGroups?.Where(tg => transaction?.TransactionGroupId == tg?.TransactionGroupId).FirstOrDefault()
         };
 
@@ -248,7 +248,7 @@
     private async Task AddTransactionGroupAsync()
     {
         var _httpResult = await transactionService.AssignTransactionsToGroup(TransactionGroup);
-        navigationManager.NavigateTo($"/file/{FilePackage?.File?.FileId}", true);
+        navigationManager.NavigateTo($"/file/{FilePackage?.File?.Id}", true);
     }
 
     private async Task SaveChanges()

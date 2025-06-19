@@ -4,7 +4,7 @@ namespace ExpensesManagementApp.Models.Transaction
 {
     public interface ITransaction
     {
-        Guid TransactionId { get; set; }
+        Guid Id { get; set; }
 
         [Required, Display(Name = "Operation date")]
         DateOnly OperationDate { get; set; }

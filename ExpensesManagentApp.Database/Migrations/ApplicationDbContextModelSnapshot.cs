@@ -99,6 +99,12 @@ namespace ExpensesManagementApp.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Login")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -119,7 +125,7 @@ namespace ExpensesManagementApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("BankType")
+                    b.Property<int?>("BankType")
                         .HasColumnType("int");
 
                     b.Property<string>("FileName")
@@ -127,6 +133,12 @@ namespace ExpensesManagementApp.Migrations
 
                     b.Property<long?>("FileSize")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Login")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -156,6 +168,12 @@ namespace ExpensesManagementApp.Migrations
 
                     b.Property<Guid?>("FileId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Login")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("OperationDate")
                         .HasColumnType("date");
@@ -201,7 +219,13 @@ namespace ExpensesManagementApp.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("JsonGroupRepresentant")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Login")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("TransactionGroupExpensesSum")
