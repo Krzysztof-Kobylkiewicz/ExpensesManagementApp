@@ -140,9 +140,9 @@ namespace Core.Repositories
 
             _dbContext.Remove(retrievedEntity);
 
-            await SaveChangesAsync();
+            int n = await SaveChangesAsync();
 
-            return true;
+            return n == 1;
         }
 
         #endregion
