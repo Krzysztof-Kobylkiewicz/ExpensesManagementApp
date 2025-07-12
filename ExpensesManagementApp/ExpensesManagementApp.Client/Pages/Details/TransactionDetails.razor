@@ -13,8 +13,11 @@
             <MudItem xs="12" md="4">
                 <MudTextField T="DateOnly" @bind-Value="Transaction.AccountingDate" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.AccountingDate)"></MudTextField>
             </MudItem>
-            <MudItem xs="12" md="4">
+            <MudItem xs="12" md="2">
                 <MudTextField T="double" @bind-Value="Transaction.Amount" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.Amount)" AutoFocus="true"></MudTextField>
+            </MudItem>
+            <MudItem>
+                <MudCheckBox T="bool" @bind-Value="Transaction.IncludeInCalculatios" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.IncludeInCalculatios)" />
             </MudItem>
             <MudItem xs="12" md="12">
                 <MudTextField T="string" @bind-Value="Transaction.OperationTitle" ReadOnly="!Edition" Label="@DisplayHelper.DisplayName(() => Transaction.OperationTitle)"></MudTextField>
@@ -39,9 +42,9 @@
             }
             @if (Edition)
             {
-                 <MudItem xs="12" xl="12">
+                <MudItem xs="12" xl="12">
                     <MudStack Row="true">
-                        <MudTooltip Text="Remove expense">
+                        <MudTooltip Text="Remove transaction">
                             <MudIconButton Icon="@Icons.Material.Rounded.DeleteForever" OnClick="DeleteTransactionGroupAsync"></MudIconButton>
                         </MudTooltip>
                     </MudStack>
@@ -61,6 +64,11 @@
 
     [Parameter]
     public EventCallback<bool> TransactionDialogCallback { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
 
     private async Task DeleteTransactionGroupAsync()
     {

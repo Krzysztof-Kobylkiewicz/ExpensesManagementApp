@@ -12,5 +12,8 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
         Task<IEnumerable<Models.Transaction.Transaction>> ValidateTransactionsAsync(IEnumerable<Models.Transaction.Transaction> transactions);
         Task<bool> DeleteTransactionsAsync(Guid id);
         Task<Models.Transaction.TransactionGroup> AssignTransactionsToGroup(Models.Transaction.TransactionGroup transactionGroup);
+        IQueryable<Database.DbModels.Transaction> GetTransactionsQuery();
+        Task<DateOnly> LatestTransactionDateAsync();
+        Task<DateOnly> EarliestTransactionDateAsync();
     }
 }

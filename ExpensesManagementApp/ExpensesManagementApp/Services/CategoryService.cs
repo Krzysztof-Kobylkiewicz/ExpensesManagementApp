@@ -1,7 +1,7 @@
 ﻿using ExpensesManagementApp.Client.Services.CategoryService;
 using ExpensesManagementApp.Logic.Repositories.CategoriesRepository;
 using ExpensesManagementApp.Models.CustomExceptions;
-using ExpensesManagementApp.Models.HttpResult;
+using Core.Models;
 
 namespace ExpensesManagementApp.Services
 {
@@ -13,15 +13,9 @@ namespace ExpensesManagementApp.Services
             {
                 return new HttpResult<Models.Category.Category>(await _categoriesRepository.GetCategoryAsync(id));
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.Category.Category>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.Category.Category>();
+                return ExceptionHandler<Models.Category.Category>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -31,15 +25,9 @@ namespace ExpensesManagementApp.Services
             {
                 return new HttpResult<IEnumerable<Models.Category.Category>> (await _categoriesRepository.GetAllCategoriesAsync());
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Models.Category.Category>> (ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Models.Category.Category>>();
+                return ExceptionHandler<IEnumerable<Models.Category.Category>>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -49,15 +37,9 @@ namespace ExpensesManagementApp.Services
             {  
                 return new HttpResult<IEnumerable<Models.Category.Category>>(await _categoriesRepository.GetCategoriesBySearchStringAsync(searchString ?? string.Empty));
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Models.Category.Category>>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Models.Category.Category>>();
+                return ExceptionHandler<IEnumerable<Models.Category.Category>>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -67,15 +49,9 @@ namespace ExpensesManagementApp.Services
             {
                 return new HttpResult<Models.Category.Category>(await _categoriesRepository.UploadCategoryAsync(category));
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.Category.Category>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.Category.Category>();
+                return ExceptionHandler<Models.Category.Category>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -90,15 +66,9 @@ namespace ExpensesManagementApp.Services
             {
                 return new HttpResult<bool>(await _categoriesRepository.DeleteCategoryAsync(id));
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<bool>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] CategoriesService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<bool>();
+                return ExceptionHandler<bool>.HandleExceptionAndLogError(ex, _logger);
             }
         }
     }

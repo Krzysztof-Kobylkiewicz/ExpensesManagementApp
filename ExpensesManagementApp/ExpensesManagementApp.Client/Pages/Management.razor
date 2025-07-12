@@ -2,13 +2,38 @@
 @page "/"
 @rendermode InteractiveAuto
 @using Models.Statistics
-@using Services;
-@using ExpensesManagementApp.Client.Services.StatisticsService;
-@using ExpensesManagementApp.Client.Services.TransactionService;
+@using Services
+@using ExpensesManagementApp.Client.Services.StatisticsService
+@using ExpensesManagementApp.Client.Services.TransactionService
 @inject IStatisticsService statisticsService
 @inject ITransactionService transactionService
 
 <PageTitle>Management</PageTitle>
+
+<MudPaper Class="mt-5 pa-5">
+    <MudExpansionPanel Text="Statistics filter" Expanded="true">
+        <MudGrid>
+            <MudItem md="3" xs="12">
+                <MudTooltip Text="@(!filter.IsRangeEditable() ? "To unlock date range picker please choose 'other' period": string.Empty)">
+                    <MudDateRangePicker Label="Transactions range" DateRange="ChooseDateRangeForPicker()" DateRangeChanged="(dr) => {filter.DateTimeFrom = dr.Start; filter.DateTimeTo = dr.End;}" Disabled="!filter.IsRangeEditable()" />
+                </MudTooltip>
+            </MudItem>
+            <MudItem md="2" xs="12">
+                <MudSelect T="ExpensesManagementApp.Models.Statistics.PeriodEnum?" Value="filter.Period" ValueChanged="(v) => filter.Period = v" Label="@DisplayHelper.DisplayName(() => filter.Period)">
+                    @foreach (var period in Enum.GetValues<ExpensesManagementApp.Models.Statistics.PeriodEnum>())
+                    {
+                        <MudSelectItem T="ExpensesManagementApp.Models.Statistics.PeriodEnum?" Value="period">@ExpensesManagementApp.Models.Statistics.Statistics.PeriodEnumToString(period)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudItem>
+            <MudItem md="12" xs="12">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+                    <MudButton Size="Size.Medium" Variant="Variant.Filled" OnClick="async () => await GetStatisticsPackageAsync()">Search</MudButton>
+                </MudStack>
+            </MudItem>
+        </MudGrid>
+    </MudExpansionPanel>
+</MudPaper>
 
 <MudPaper Class="mt-5 pa-5">
     <MudGrid>
@@ -53,48 +78,45 @@
             <MudTextField T="string" Text="@_statistics.ExpensesDominant.ToString()" Label="@(DisplayHelper.DisplayName(() => _statistics.ExpensesDominant))" />
         </MudItem>
 
-        <MudItem md="12" xs="12" Class="pa-10">
-            <MudChart Class="pa-10" ChartType="ChartType.Bar" ChartSeries="_series" @bind-SelectedIndex="_customChartSettings.Index" XAxisLabels="_customChartSettings.ChooseXAxisLabels(_statistics.Range, transactionFiltr)" ChartOptions="_chartOptions" />
-        </MudItem>
+        @if (_transactionsChartSeries != null && _statisticsPackage != null && _statisticsPackage.LatestTransactionDate.HasValue)
+        {
+            <MudItem md="12" xs="12" Class="pa-10">
+                <MudChart Class="pa-10" ChartType="ChartType.Bar" ChartSeries="_series" @bind-SelectedIndex="_transactionsChartSeries.Index" XAxisLabels="TransactionsChartSeries.ChooseXAxisLabels(filter, _statisticsPackage.LatestTransactionDate.Value)" ChartOptions="@(new ChartOptions { ChartPalette = _transactionsChartSeries.BarColors() ?? TransactionsChartSeries.DefaultColors, YAxisTicks = 1, ShowToolTips = true })" />
+            </MudItem>
+        }
 
     </MudGrid>
 </MudPaper>
 
 @code {
 
-    //private IEnumerable<Models.Transaction.ITransaction> _transactions { get; set; } = [];
-    private Models.Transaction.TransactionFilter transactionFiltr { get; set; } = new Models.Transaction.TransactionFilter();
-    //private double[] _chartValues => _transactions.Select(t => t.Amount).ToArray();
+    private Models.Transaction.TransactionFilter filter { get; set; } = new();
 
     private StatisticsPackage? _statisticsPackage { get; set; }
+
     private Statistics _statistics => _statisticsPackage?.Statistics ?? new Statistics();
-    //private Statistics _statistics { get; set; } = new Statistics();
-    private Models.Statistics.CustomChartSettings _customChartSettings { get; set; } = new Models.Statistics.CustomChartSettings();
-    private MudBlazor.ChartOptions _chartOptions = new MudBlazor.ChartOptions
-    {
-        ShowLabels = true,
-        ShowLegend = true,
-        ShowToolTips = true,
-        YAxisTicks = 1,
-        YAxisLabelPosition = YAxisLabelPosition.Left
-    };
-    private List<ChartSeries> _series = [];
+
+    private TransactionsChartSeries? _transactionsChartSeries => _statisticsPackage?.TransactionsChartSeries;
+
+    private List<ChartSeries> _series => _statisticsPackage?.TransactionsChartSeries?.ChartSeries ?? [];
 
     protected async override Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
 
-        var responseStatistics = await statisticsService.GetStatisticsPackageAsync(transactionFiltr);
+        await GetStatisticsPackageAsync();
+    }
 
-        if (responseStatistics.Data != null)
+    private async Task GetStatisticsPackageAsync()
+    {
+        var _httpResult = await statisticsService.GetStatisticsPackageAsync(filter);
+
+        if (_httpResult.Data != null)
         {
-            _statisticsPackage = responseStatistics.Data;
-
-            _series = new List<ChartSeries>()
-            {
-                new ChartSeries() { Name = "Income", Data = _statisticsPackage.TransactionsChartSeries?.Income.Select(i => i/1000).ToArray() ?? [] },
-                new ChartSeries() { Name = "Expenses", Data = _statisticsPackage.TransactionsChartSeries?.Expenses.Select(e => -e/1000).ToArray() ?? [] }
-            };
+            _statisticsPackage = _httpResult.Data;
+            //_chartOptions.ChartPalette = _transactionsChartSeries?.BarColors() ?? TransactionsChartSeries.DefaultColors;
         }
     }
+
+    private DateRange ChooseDateRangeForPicker() => filter.Period.Equals(PeriodEnum.Other) ? new DateRange() : _statisticsPackage?.PackageTransactionsDateRange() ?? new DateRange();
 }

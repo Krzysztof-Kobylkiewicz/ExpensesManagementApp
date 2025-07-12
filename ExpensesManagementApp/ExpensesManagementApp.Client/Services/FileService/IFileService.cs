@@ -1,4 +1,4 @@
-﻿using ExpensesManagementApp.Models.HttpResult;
+﻿using Core.Models;
 
 namespace ExpensesManagementApp.Client.Services.FileService
 {

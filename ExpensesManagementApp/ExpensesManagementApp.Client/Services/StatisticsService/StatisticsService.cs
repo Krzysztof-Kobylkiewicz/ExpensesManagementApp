@@ -1,5 +1,5 @@
 ﻿using ExpensesManagementApp.Models.Statistics;
-using ExpensesManagementApp.Models.HttpResult;
+using Core.Models;
 using System.Net.Http.Json;
 using ExpensesManagementApp.Models.Transaction;
 

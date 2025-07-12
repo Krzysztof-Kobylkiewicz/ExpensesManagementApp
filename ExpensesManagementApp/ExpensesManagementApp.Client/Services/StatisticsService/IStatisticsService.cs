@@ -1,5 +1,5 @@
 ﻿using ExpensesManagementApp.Models.Statistics;
-using ExpensesManagementApp.Models.HttpResult;
+using Core.Models;
 using ExpensesManagementApp.Models.Transaction;
 
 namespace ExpensesManagementApp.Client.Services.StatisticsService

@@ -1,5 +1,5 @@
-﻿namespace ExpensesManagementApp.Models.HttpResult
-{
+﻿namespace Core.Models
+{ 
     public class HttpResult<T>
     {
         public HttpResult() 

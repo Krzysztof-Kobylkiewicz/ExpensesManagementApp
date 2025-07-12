@@ -107,5 +107,11 @@ namespace ExpensesManagementApp.Logic.Repositories.TransactionsRepository
                 throw;
             }
         }
+
+        public IQueryable<Transaction> GetTransactionsQuery() => GetEntityQuery<Transaction, Models.Transaction.Transaction, Guid>(t => t);
+
+        public async Task<DateOnly> LatestTransactionDateAsync() => await GetEntityQuery<Transaction, Models.Transaction.Transaction, Guid>(t => t).MaxAsync(t => t.OperationDate);
+
+        public async Task<DateOnly> EarliestTransactionDateAsync() => await GetEntityQuery<Transaction, Models.Transaction.Transaction, Guid>(t => t).MinAsync(t => t.OperationDate);
     }
 }

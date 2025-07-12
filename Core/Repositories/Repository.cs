@@ -89,7 +89,8 @@ namespace Core.Repositories
             }
 
             await AddAsync<E, DTO, Key>(entity);
-            return await SaveChangesAsync() == 1 ? entity : throw new Exception("Entity was not added to the database.");
+            await SaveChangesAsync();
+            return entity;
         }
 
         #region DTO-Adding
@@ -140,9 +141,9 @@ namespace Core.Repositories
 
             _dbContext.Remove(retrievedEntity);
 
-            int n = await SaveChangesAsync();
+            await SaveChangesAsync();
 
-            return n == 1;
+            return true;
         }
 
         #endregion

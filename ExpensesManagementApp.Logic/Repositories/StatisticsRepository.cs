@@ -1,23 +1,23 @@
-﻿using ExpensesManagementApp.Database;
+﻿using Core.Helpers;
+using ExpensesManagementApp.Database.DbModels;
 using ExpensesManagementApp.Database.Filters;
-using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
 using ExpensesManagementApp.Models.Statistics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace ExpensesManagementApp.Logic.Repositories
 {
-    public class StatisticsRepository(ApplicationDbContext database, ITransactionsRepository transactionsRepository, ILogger<StatisticsRepository> logger)
+    public class StatisticsRepository(TransactionsRepository.ITransactionsRepository transactionsRepository, ILogger<StatisticsRepository> logger)
     {
-        public async Task<Statistics?> InitializeStatisticsAsync()
+        public async Task<Statistics?> InitializeStatisticsAsync(DbTransactionFilter filter)
         {
             try
             {
-                var latestExpenseDate = await database.Transactions.MaxAsync(e => e.OperationDate);
-                
-                var nDays = DateTime.DaysInMonth(latestExpenseDate.Year, latestExpenseDate.Month);
+                var latestExpenseDate = await transactionsRepository.LatestTransactionDateAsync();
 
-                var amount = await database.Transactions.Where(e => e.OperationDate.Month == latestExpenseDate.Month).Select(e => e.Amount).OrderByDescending(a => a).ToArrayAsync();
+                var nDays = DaysInPeriod(latestExpenseDate, filter.Period);
+
+                var amount = await AmountBasedOnPeriod(latestExpenseDate, filter.Period);
 
                 return ConstructStatistics(amount, nDays);
             }
@@ -25,7 +25,7 @@ namespace ExpensesManagementApp.Logic.Repositories
             {
                 logger.LogError("[{0D}] Error while accessing database: {1M}", DateTime.Now, ioe.Message);
 
-                if (ioe.Message.Equals("Sequence contains no elements."))
+                if (ioe.Message.Equals("Sequence contains no elements"))
                     return new Statistics();
                 else
                     throw;
@@ -38,10 +38,15 @@ namespace ExpensesManagementApp.Logic.Repositories
         }
 
         public async Task<Models.Statistics.TransactionsChartSeries> GetChartSeriesAsync(DbTransactionFilter filter)
+        
         {
-            var transactions = await transactionsRepository.GetSpecificTransactionsAsync(filter);
+            //var transactions = await transactionsRepository.GetSpecificTransactionsAsync(filter);
 
-            var groupedTransactions = transactions.GroupBy(t => t.OperationDate.Year).Select(yeargroup => new
+            var latestExpenseDate = await transactionsRepository.LatestTransactionDateAsync();
+
+            var transactions = await TransactionsBasedOnPeriod(latestExpenseDate, filter.Period);
+
+            var groupedTransactions = transactions?.GroupBy(t => t.OperationDate.Year).Select(yeargroup => new
             {
                 Year = yeargroup.Key,
                 Months = yeargroup.GroupBy(t => t.OperationDate.Month).Select(monthgroup => new
@@ -55,7 +60,7 @@ namespace ExpensesManagementApp.Logic.Repositories
 
             TransactionsChartSeries series = new();
 
-            foreach (var yeargroup in groupedTransactions)
+            foreach (var yeargroup in groupedTransactions ?? [])
             {
                 foreach (var monthgroup in yeargroup.Months)
                 {
@@ -65,34 +70,6 @@ namespace ExpensesManagementApp.Logic.Repositories
             }
 
             return series;
-        }
-
-        private double CalculateMedian(double[] data)
-        {
-            if (data is null || data.Length == 0)
-                return 0;
-
-            int n = data.Length;
-
-            return n % 2 == 0 ? (data[n / 2 - 1] + data[(n / 2)]) / 2 : data[(int)(n / 2 + 0.5)];
-        }
-
-        private double CalculateDominant(IEnumerable<double> data)
-        {
-            var dominantDict = new Dictionary<double, int>();
-
-            foreach (var value in data)
-            {
-                if (dominantDict.ContainsKey(value))
-                    dominantDict[value]++;
-                else
-                    dominantDict[value] = 1;
-            }
-
-            int maxOccurences = dominantDict.Values.Max();
-            double dominant = dominantDict.First(d => d.Value == maxOccurences).Key;
-
-            return dominant;
         }
 
         private Statistics ConstructStatistics(double[]? transactionsAmount, int daysInPeriod)
@@ -105,23 +82,88 @@ namespace ExpensesManagementApp.Logic.Repositories
 
             var statistics = new Statistics
             {
-                Sum = transactionsAmount.Sum(),
-                IncomeSum = amountIncone.Sum(),
-                ExpensesSum = amountExpenses.Sum(),
-                Average = transactionsAmount.Sum() / daysInPeriod,
-                IncomeAverage = amountIncone.Sum() / daysInPeriod,
-                ExpensesAverage = amountExpenses.Sum() / daysInPeriod,
-                Median = CalculateMedian(transactionsAmount),
-                IncomeMedian = CalculateMedian(amountIncone),
-                ExpensesMedian = CalculateMedian(amountExpenses),
-                Dominant = CalculateDominant(transactionsAmount),
-                IncomeDominant = CalculateDominant(amountIncone),
-                ExpensesDominant = CalculateDominant(amountExpenses)
+                Sum = transactionsAmount?.Sum(),
+                IncomeSum = amountIncone?.Sum(),
+                ExpensesSum = amountExpenses?.Sum(),
+                Average = transactionsAmount?.Sum() / daysInPeriod,
+                IncomeAverage = amountIncone?.Sum() / daysInPeriod,
+                ExpensesAverage = amountExpenses?.Sum() / daysInPeriod,
+                Median = MathHelper.CalculateMedian(transactionsAmount ?? []),
+                IncomeMedian = MathHelper.CalculateMedian(amountIncone ?? []),
+                ExpensesMedian = MathHelper.CalculateMedian(amountExpenses ?? []),
+                Dominant = MathHelper.CalculateDominant(transactionsAmount ?? []),
+                IncomeDominant = MathHelper.CalculateDominant(amountIncone ?? []),
+                ExpensesDominant = MathHelper.CalculateDominant(amountExpenses ?? [])
             };
 
             statistics.Round();
 
             return statistics;
         }
+
+        private async Task<Transaction[]?> TransactionsBasedOnPeriod(DateOnly latestExpenseDate, PeriodEnum? period, DbTransactionFilter? filter = null)
+        {
+            var transactionsQuery = transactionsRepository.GetTransactionsQuery();
+
+            switch (period)
+            {
+                case PeriodEnum.Day:
+                    transactionsQuery = transactionsQuery.Where(t => t.OperationDate == latestExpenseDate);
+                    break;
+                case PeriodEnum.Week:
+                    transactionsQuery = transactionsQuery.Where(t => t.OperationDate <= latestExpenseDate && t.OperationDate >= latestExpenseDate.AddDays(-7));
+                    break;
+                case PeriodEnum.Month:
+                    transactionsQuery = transactionsQuery.Where(t => t.OperationDate <= latestExpenseDate && t.OperationDate >= latestExpenseDate.AddMonths(-1));
+                    break;
+                case PeriodEnum.Quarter:
+                    int[] months = DateHelper.MonthsFromQuarterOfProvidedMonth(latestExpenseDate.Month);
+                    transactionsQuery = transactionsQuery.Where(t => t.OperationDate.Month >= months[0] && t.OperationDate.Month <= months[2]);
+                    break;
+                case PeriodEnum.Year:
+                    transactionsQuery = transactionsQuery.Where(t => t.OperationDate <= latestExpenseDate && t.OperationDate >= latestExpenseDate.AddYears(-1));
+                    break;
+                case PeriodEnum.Other:
+                    if (filter?.DateTimeFrom.HasValue == true)
+                    {
+                        DateOnly dateFrom = new DateOnly(filter.DateTimeFrom.Value.Year, filter.DateTimeFrom.Value.Month, filter.DateTimeFrom.Value.Day);
+                        transactionsQuery = transactionsQuery.Where(t => t.OperationDate >= dateFrom);
+                    }
+                    if (filter?.DateTimeTo.HasValue == true)
+                    {
+                        DateOnly dateTo = new DateOnly(filter.DateTimeTo.Value.Year, filter.DateTimeTo.Value.Month, filter.DateTimeTo.Value.Day);
+                        transactionsQuery = transactionsQuery.Where(t => t.OperationDate >= dateTo);
+                    }
+                    break;
+            };
+
+            try
+            {
+                return await transactionsQuery.ToArrayAsync();
+            }
+            catch (InvalidOperationException ioe) when (ioe.Message.Equals("Sequence contains no elements"))
+            {
+                return [];
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        private async Task<double[]?> AmountBasedOnPeriod(DateOnly latestExpenseDate, PeriodEnum? aggregationInterval) => (await TransactionsBasedOnPeriod(latestExpenseDate, aggregationInterval))?.Select(t => t.Amount).ToArray();
+
+        private int DaysInPeriod(DateOnly latestExpenseDate, PeriodEnum? period) => (period) switch
+        {
+            PeriodEnum.Day => 1,
+            PeriodEnum.Week => 7,
+            PeriodEnum.Month => DateTime.DaysInMonth(latestExpenseDate.Year, latestExpenseDate.Month),
+            PeriodEnum.Quarter => DateHelper.DaysInQuarter(latestExpenseDate),
+            PeriodEnum.Year => DateTime.IsLeapYear(latestExpenseDate.Year) ? 366 : 355,
+            _ => throw new NotImplementedException()
+        };
+
+        public async Task<DateOnly> LatestTransactionDateAsync() => await transactionsRepository.LatestTransactionDateAsync();
+        public async Task<DateOnly> EarliestTransactionDateAsync() => await transactionsRepository.EarliestTransactionDateAsync();
     }
 }

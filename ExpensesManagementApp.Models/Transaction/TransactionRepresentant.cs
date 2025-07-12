@@ -20,5 +20,8 @@ namespace ExpensesManagementApp.Models.Transaction
         public string? OperationTitle { get; set; }
 
         public Guid? TransactionGroupId { get; set; }
+
+        [Display(Name = "Included in calculations")]
+        public bool IncludeInCalculatios { get; set; } = true;
     }
 }

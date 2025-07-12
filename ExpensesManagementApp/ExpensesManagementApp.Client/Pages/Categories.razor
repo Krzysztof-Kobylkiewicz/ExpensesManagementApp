@@ -68,9 +68,9 @@
 
     private Models.Category.Category _category { get; set; } = new Models.Category.Category();
 
-    private Models.HttpResult.HttpResult<Models.Category.Category>? _httpResultNewCategory { get; set; }
+    private Core.Models.HttpResult<Models.Category.Category>? _httpResultNewCategory { get; set; }
 
-    private Models.HttpResult.HttpResult<IEnumerable<Models.Category.Category>>? _httpResultCategories { get; set; }
+    private Core.Models.HttpResult<IEnumerable<Models.Category.Category>>? _httpResultCategories { get; set; }
 
     private bool _edition { get; set; } = false;
 

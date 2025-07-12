@@ -60,8 +60,8 @@ namespace ExpensesManagementApp.Models.Statistics
         [Display(Name = "Expenses dominant")]
         public double? ExpensesDominant { get; set; }
 
-        [Display(Name = "Range")]
-        public AggregationInterval Range { get; set; } = AggregationInterval.Monthly;
+        [Display(Name = "Period")]
+        public PeriodEnum Period { get; set; } = PeriodEnum.Quarter;
 
         [Display(Name = "Date from")]
         public DateTime? DateFrom { get; set; }
@@ -87,15 +87,26 @@ namespace ExpensesManagementApp.Models.Statistics
             IncomeDominant = IncomeDominant.HasValue ? Math.Round(IncomeDominant.Value, _decimalPlace) : 0;
             Dominant = Dominant.HasValue ? Math.Round(Dominant.Value, _decimalPlace) : 0;
         }
+        
+        public static string PeriodEnumToString(PeriodEnum? period) => (period) switch
+        {
+            PeriodEnum.Day => "Day",
+            PeriodEnum.Week => "Week",
+            PeriodEnum.Month => "Month",
+            PeriodEnum.Quarter => "Quarter",
+            PeriodEnum.Year => "Year",
+            PeriodEnum.Other => "Other",
+            _ => throw new NotImplementedException()
+        };
     };
 
-    public enum AggregationInterval
+    public enum PeriodEnum
     {
-        Daily,
-        Weekly,
-        Monthly,
-        Quarterly,
-        Yearly,
+        Day,
+        Week,
+        Month,
+        Quarter,
+        Year,
         Other
     }
 }

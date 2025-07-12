@@ -1,6 +1,6 @@
 ﻿using ExpensesManagementApp.Client.Services.FileService;
 using ExpensesManagementApp.Models.CustomExceptions;
-using ExpensesManagementApp.Models.HttpResult;
+using Core.Models;
 
 namespace ExpensesManagementApp.Services.FileService
 {
@@ -14,15 +14,9 @@ namespace ExpensesManagementApp.Services.FileService
 
                 return new HttpResult<Models.File.FilePackage?>(file);
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] FileService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.File.FilePackage?>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] FileService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.File.FilePackage?>();
+                return ExceptionHandler<Models.File.FilePackage?>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -34,15 +28,9 @@ namespace ExpensesManagementApp.Services.FileService
 
                 return new HttpResult<IEnumerable<Models.File.FilePackage?>>(filePackages);
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] FileService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Models.File.FilePackage?>>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] FileService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Models.File.FilePackage?>>();
+                return ExceptionHandler<IEnumerable<Models.File.FilePackage?>>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -54,15 +42,9 @@ namespace ExpensesManagementApp.Services.FileService
 
                 return new HttpResult<bool>(succes);
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] FileService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<bool>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] FileService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<bool>();
+                return ExceptionHandler<bool>.HandleExceptionAndLogError(ex, _logger);
             }
         }
     }

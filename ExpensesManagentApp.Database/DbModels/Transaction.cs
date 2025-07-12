@@ -14,6 +14,7 @@ namespace ExpensesManagementApp.Database.DbModels
         public string? OperationTitle { get; set; }
         public string? SenderAccountNumber { get; set; }
         public int OperationNumber { get; set; }
+        public bool IncludeInCalculations { get; set; } = true;
 
         //Many to one relationship with file
         public Guid? FileId { get; set; }
@@ -37,7 +38,8 @@ namespace ExpensesManagementApp.Database.DbModels
             Sender = this.Sender,
             OperationTitle = this.OperationTitle,
             SenderAccountNumber = this.SenderAccountNumber,
-            OperationNumber = this.OperationNumber
+            OperationNumber = this.OperationNumber,
+            IncludeInCalculatios = this.IncludeInCalculations
         };
 
         public static Transaction ConvertDTOToEntity(Models.Transaction.Transaction transaction) => new()
@@ -51,7 +53,8 @@ namespace ExpensesManagementApp.Database.DbModels
             OperationTitle = transaction.OperationTitle,
             SenderAccountNumber = transaction.SenderAccountNumber,
             OperationNumber = transaction.OperationNumber,
-            TransactionGroupId = transaction.TransactionGroupId
+            TransactionGroupId = transaction.TransactionGroupId,
+            IncludeInCalculations = transaction.IncludeInCalculatios
         };
     }
 }

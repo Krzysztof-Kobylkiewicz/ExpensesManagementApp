@@ -1,7 +1,7 @@
 ﻿using ExpensesManagementApp.Client.Services.TransactionService;
 using ExpensesManagementApp.Logic.Repositories.TransactionsRepository;
 using ExpensesManagementApp.Models.CustomExceptions;
-using ExpensesManagementApp.Models.HttpResult;
+using Core.Models;
 using ExpensesManagementApp.Models.Transaction;
 
 namespace ExpensesManagementApp.Services
@@ -21,15 +21,9 @@ namespace ExpensesManagementApp.Services
 
                 return new HttpResult<IEnumerable<Transaction>>(transactions);
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Transaction>>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Transaction>>();
+                return ExceptionHandler<IEnumerable<Transaction>>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -41,15 +35,9 @@ namespace ExpensesManagementApp.Services
 
                 return new HttpResult<IEnumerable<Transaction>>(transactions);
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Transaction>>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<IEnumerable<Transaction>>();
+                return ExceptionHandler<IEnumerable<Transaction>>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -61,15 +49,9 @@ namespace ExpensesManagementApp.Services
 
                 return new HttpResult<bool>(succes);
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<bool>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<bool>();
+                return ExceptionHandler<bool>.HandleExceptionAndLogError(ex, _logger);
             }
         }
 
@@ -81,15 +63,9 @@ namespace ExpensesManagementApp.Services
 
                 return new HttpResult<Models.Transaction.TransactionGroup>(_transactionGroup);
             }
-            catch (ExpensesManagementAppDbException ex)
-            {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an ExpensesManagementAppDbException: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.Transaction.TransactionGroup>(ex.Message, ex.StatusCode);
-            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[{0D}] TransactionService threw an Exception: {1M}", DateTime.Now, ex.Message);
-                return new HttpResult<Models.Transaction.TransactionGroup>();
+                return ExceptionHandler<TransactionGroup>.HandleExceptionAndLogError(ex, _logger);
             }
         }
     }

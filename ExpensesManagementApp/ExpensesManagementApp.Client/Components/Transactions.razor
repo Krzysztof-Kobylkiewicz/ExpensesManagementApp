@@ -181,7 +181,7 @@
     [Parameter]
     public EventCallback OnSwitchToEditionMode { get; set; }
 
-    private Models.HttpResult.HttpResult<IEnumerable<Models.Transaction.Transaction>>? _httpResult { get; set; }
+    private Core.Models.HttpResult<IEnumerable<Models.Transaction.Transaction>>? _httpResult { get; set; }
 
     private IEnumerable<Models.Transaction.ITransaction?> tableGroupedTransactions { get; set; } = [];
 
