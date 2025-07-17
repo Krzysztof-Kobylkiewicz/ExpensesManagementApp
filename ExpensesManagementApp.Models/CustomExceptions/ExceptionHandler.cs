@@ -16,6 +16,7 @@ namespace ExpensesManagementApp.Models.CustomExceptions
         public static HttpResult<T> HandleException(Exception ex) => (ex) switch
         {
             ExpensesManagementAppDbException => new HttpResult<T>(ex.Message, 500),
+            InvalidOperationException => new HttpResult<T>(ex.Message, 500),
             Exception => new HttpResult<T>(ExceptionMessage, 500),
             _ => throw new NotImplementedException()
         };

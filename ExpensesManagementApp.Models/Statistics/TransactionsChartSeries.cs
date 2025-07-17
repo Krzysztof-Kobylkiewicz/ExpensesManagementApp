@@ -44,7 +44,7 @@ namespace ExpensesManagementApp.Models.Statistics
         public static string[] ChooseXAxisLabels(TransactionFilter filter, DateOnly latestTransactionDate) => (filter.Period) switch
         {
             PeriodEnum.Day => [DateHelper.DateToString(latestTransactionDate)],
-            PeriodEnum.Week => throw new NotImplementedException(),
+            PeriodEnum.Week => DateHelper.WeekDependingOfDate(latestTransactionDate),
             PeriodEnum.Month => throw new NotImplementedException(),
             PeriodEnum.Quarter => [.. DateHelper.MonthsFromGivenQuarter(DateHelper.QuarterDependingOnMonth(latestTransactionDate.Month)).Select(d => DateHelper.MonthIntToString(d))],
             PeriodEnum.Year => throw new NotImplementedException(),

@@ -81,7 +81,7 @@
         @if (_transactionsChartSeries != null && _statisticsPackage != null && _statisticsPackage.LatestTransactionDate.HasValue)
         {
             <MudItem md="12" xs="12" Class="pa-10">
-                <MudChart Class="pa-10" ChartType="ChartType.Bar" ChartSeries="_series" @bind-SelectedIndex="_transactionsChartSeries.Index" XAxisLabels="TransactionsChartSeries.ChooseXAxisLabels(filter, _statisticsPackage.LatestTransactionDate.Value)" ChartOptions="@(new ChartOptions { ChartPalette = _transactionsChartSeries.BarColors() ?? TransactionsChartSeries.DefaultColors, YAxisTicks = 1, ShowToolTips = true })" />
+                <MudChart @ref="_mudChart" Class="pa-10" ChartType="ChartType.Bar" ChartSeries="_series" @bind-SelectedIndex="_transactionsChartSeries.Index" XAxisLabels="TransactionsChartSeries.ChooseXAxisLabels(filter, _statisticsPackage.LatestTransactionDate.Value)" ChartOptions="@(new ChartOptions { ChartPalette = _transactionsChartSeries.BarColors() ?? TransactionsChartSeries.DefaultColors, YAxisTicks = 1, ShowToolTips = true })" />
             </MudItem>
         }
 
@@ -99,6 +99,8 @@
     private TransactionsChartSeries? _transactionsChartSeries => _statisticsPackage?.TransactionsChartSeries;
 
     private List<ChartSeries> _series => _statisticsPackage?.TransactionsChartSeries?.ChartSeries ?? [];
+
+    private MudChart? _mudChart;
 
     protected async override Task OnInitializedAsync()
     {

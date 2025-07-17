@@ -1,10 +1,13 @@
-﻿using Core.Models;
+﻿using Core.Helpers;
+using Core.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace ExpensesManagementApp.Models.Statistics
 {
     public class Statistics : ModelCore<Statistics, Guid>
     {
+        #region ctors
+
         public Statistics()
         {
             Sum = 0;
@@ -23,6 +26,34 @@ namespace ExpensesManagementApp.Models.Statistics
             IncomeDominant = 0;
             ExpensesDominant = 0;
         }
+
+        public Statistics(double[] amount, int daysInPeriod, bool round = true)
+        {
+            var amountIncone = amount.Where(a => a > 0).ToArray();
+            var amountExpenses = amount.Where(a => a < 0).ToArray();
+
+            Sum = amount?.Sum();
+            IncomeSum = amountIncone?.Sum();
+            ExpensesSum = amountExpenses?.Sum();
+
+            Average = amount?.Sum() / daysInPeriod;
+            IncomeAverage = amountIncone?.Sum() / daysInPeriod;
+            ExpensesAverage = amountExpenses?.Sum() / daysInPeriod;
+
+            Median = MathHelper.CalculateMedian(amount ?? []);
+            IncomeMedian = MathHelper.CalculateMedian(amountIncone ?? []);
+            ExpensesMedian = MathHelper.CalculateMedian(amountExpenses ?? []);
+
+            Dominant = MathHelper.CalculateDominant(amount ?? []);
+            IncomeDominant = MathHelper.CalculateDominant(amountIncone ?? []);
+            ExpensesDominant = MathHelper.CalculateDominant(amountExpenses ?? []);
+
+            if (round)
+                Round();
+
+        }
+
+        #endregion
 
         [Display(Name = "Sum")]
         public double? Sum { get; set; }

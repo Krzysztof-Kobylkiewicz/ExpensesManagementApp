@@ -137,6 +137,45 @@
 
         #endregion
 
+        #region Weeks
+
+        /// <summary>
+        /// Returns array of names in format: 'dayOfWeek, date.ToSchortDateString()'.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        public static string[] WeekDependingOfDate(DateOnly date)
+        {
+            int day = DayOfWeekEnumToInt(date.DayOfWeek);
+
+            IEnumerable<string> weeks = [];
+
+            while (day > 0)
+            {
+                weeks = weeks.Append($"{DayIntToString(day)}, {date.AddDays(-weeks.Count()).ToShortDateString()}");
+                day--;
+            }
+
+            if (weeks.Count() == 7)
+            {
+                return [..weeks];
+            }
+            else
+            {
+                day = 7;
+
+                while (weeks.Count() < 7)
+                {
+                    weeks = weeks.Append($"{DayIntToString(day)}, {date.AddDays(-weeks.Count()).ToShortDateString()}");
+                    day--;
+                }
+
+                return [.. weeks];
+            }
+        }
+
+        #endregion
+
         #region Days
 
         /// <summary>
@@ -164,6 +203,18 @@
         /// <param name="displayDayOfWeek"></param>
         /// <returns></returns>
         public static string DateToString(DateOnly date, bool displayDayOfWeek = false) => $"{date:dd.MM.yyyy}{(displayDayOfWeek ? " - " + date.DayOfWeek : string.Empty)}";
+
+        public static int DayOfWeekEnumToInt(DayOfWeek dayOfWeekEnum) => (dayOfWeekEnum) switch
+        {
+            DayOfWeek.Monday => 1,
+            DayOfWeek.Tuesday => 2,
+            DayOfWeek.Wednesday => 3,
+            DayOfWeek.Thursday => 4,
+            DayOfWeek.Friday => 5,
+            DayOfWeek.Saturday => 6,
+            DayOfWeek.Sunday => 7,
+            _ => throw new NotImplementedException()
+        };
 
         #endregion
     }

@@ -17,9 +17,9 @@ namespace ExpensesManagementApp.Logic.Repositories
 
                 var nDays = DaysInPeriod(latestExpenseDate, filter.Period);
 
-                var amount = await AmountBasedOnPeriod(latestExpenseDate, filter.Period);
+                double[] amount = await AmountBasedOnPeriod(latestExpenseDate, filter.Period) ?? [];
 
-                return ConstructStatistics(amount, nDays);
+                return new Statistics(amount, nDays);
             }
             catch (InvalidOperationException ioe)
             {
@@ -64,41 +64,12 @@ namespace ExpensesManagementApp.Logic.Repositories
             {
                 foreach (var monthgroup in yeargroup.Months)
                 {
-                    series.Income = series.Income.Concat([Math.Round(monthgroup.Income.Sum(), 2)]).ToArray();
-                    series.Expenses = series.Expenses.Concat([Math.Round(monthgroup.Expenses.Sum(), 2)]).ToArray();
+                    series.Income = [..series.Income.Concat([Math.Round(monthgroup.Income.Sum(), 2)])];
+                    series.Expenses = [..series.Expenses.Concat([Math.Round(monthgroup.Expenses.Sum(), 2)])];
                 }
             }
 
             return series;
-        }
-
-        private Statistics ConstructStatistics(double[]? transactionsAmount, int daysInPeriod)
-        {
-            if (transactionsAmount == null || transactionsAmount.Length == 0)
-                return new Statistics();
-
-            var amountIncone = transactionsAmount.Where(a => a > 0).ToArray();
-            var amountExpenses = transactionsAmount.Where(a => a < 0).ToArray();
-
-            var statistics = new Statistics
-            {
-                Sum = transactionsAmount?.Sum(),
-                IncomeSum = amountIncone?.Sum(),
-                ExpensesSum = amountExpenses?.Sum(),
-                Average = transactionsAmount?.Sum() / daysInPeriod,
-                IncomeAverage = amountIncone?.Sum() / daysInPeriod,
-                ExpensesAverage = amountExpenses?.Sum() / daysInPeriod,
-                Median = MathHelper.CalculateMedian(transactionsAmount ?? []),
-                IncomeMedian = MathHelper.CalculateMedian(amountIncone ?? []),
-                ExpensesMedian = MathHelper.CalculateMedian(amountExpenses ?? []),
-                Dominant = MathHelper.CalculateDominant(transactionsAmount ?? []),
-                IncomeDominant = MathHelper.CalculateDominant(amountIncone ?? []),
-                ExpensesDominant = MathHelper.CalculateDominant(amountExpenses ?? [])
-            };
-
-            statistics.Round();
-
-            return statistics;
         }
 
         private async Task<Transaction[]?> TransactionsBasedOnPeriod(DateOnly latestExpenseDate, PeriodEnum? period, DbTransactionFilter? filter = null)
@@ -126,12 +97,12 @@ namespace ExpensesManagementApp.Logic.Repositories
                 case PeriodEnum.Other:
                     if (filter?.DateTimeFrom.HasValue == true)
                     {
-                        DateOnly dateFrom = new DateOnly(filter.DateTimeFrom.Value.Year, filter.DateTimeFrom.Value.Month, filter.DateTimeFrom.Value.Day);
+                        DateOnly dateFrom = new (filter.DateTimeFrom.Value.Year, filter.DateTimeFrom.Value.Month, filter.DateTimeFrom.Value.Day);
                         transactionsQuery = transactionsQuery.Where(t => t.OperationDate >= dateFrom);
                     }
                     if (filter?.DateTimeTo.HasValue == true)
                     {
-                        DateOnly dateTo = new DateOnly(filter.DateTimeTo.Value.Year, filter.DateTimeTo.Value.Month, filter.DateTimeTo.Value.Day);
+                        DateOnly dateTo = new (filter.DateTimeTo.Value.Year, filter.DateTimeTo.Value.Month, filter.DateTimeTo.Value.Day);
                         transactionsQuery = transactionsQuery.Where(t => t.OperationDate >= dateTo);
                     }
                     break;
@@ -145,7 +116,7 @@ namespace ExpensesManagementApp.Logic.Repositories
             {
                 return [];
             }
-            catch (Exception ex)
+            catch
             {
                 throw;
             }
@@ -153,7 +124,7 @@ namespace ExpensesManagementApp.Logic.Repositories
 
         private async Task<double[]?> AmountBasedOnPeriod(DateOnly latestExpenseDate, PeriodEnum? aggregationInterval) => (await TransactionsBasedOnPeriod(latestExpenseDate, aggregationInterval))?.Select(t => t.Amount).ToArray();
 
-        private int DaysInPeriod(DateOnly latestExpenseDate, PeriodEnum? period) => (period) switch
+        private static int DaysInPeriod(DateOnly latestExpenseDate, PeriodEnum? period) => (period) switch
         {
             PeriodEnum.Day => 1,
             PeriodEnum.Week => 7,
